@@ -14,3 +14,8 @@ tasks:
     desc: Run in dev mode
     cmds:
       - task: run
+
+  test: 
+    desc: Run tests
+    cmds: 
+      - go test ./...

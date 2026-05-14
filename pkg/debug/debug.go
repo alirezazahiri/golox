@@ -38,12 +38,23 @@ func DisassembleInstruction(c *chunk.Chunk, offset int) int {
 	case byte(common.OpConstantLong):
 		return constantLongInstruction("OP_CONSTANT_LONG", c, offset)
 
+	case byte(common.OpNegate):
+		return simpleInstruction("OP_NEGATE", offset)
+	
+	case byte(common.OpAdd):
+		return simpleInstruction("OP_ADD", offset)
+	case byte(common.OpSubtract):
+		return simpleInstruction("OP_SUBTRACT", offset)
+	case byte(common.OpMultiply):
+		return simpleInstruction("OP_MULTIPLY", offset)
+	case byte(common.OpDivide):
+		return simpleInstruction("OP_DIVIDE", offset)
+	
 	default:
 		fmt.Printf("Unknown opcode %d\n", instruction)
 		return offset + 1
 	}
 }
-
 
 func simpleInstruction(name string, offset int) int {
 	fmt.Printf("%s\n", name)
@@ -52,7 +63,7 @@ func simpleInstruction(name string, offset int) int {
 
 func constantInstruction(name string, chunk *chunk.Chunk, offset int) int {
 	constant := chunk.Code[offset+1]
-	fmt.Printf("%-16s %4d '%s'\n", name, constant, printValue(chunk.Constants.Values[constant]))
+	fmt.Printf("%-16s %4d '%s'\n", name, constant, PrintValue(chunk.Constants.Values[constant]))
 	return offset + 2
 }
 
@@ -64,13 +75,12 @@ func constantLongInstruction(name string, c *chunk.Chunk, offset int) int {
 	constant := (b1 << 16) | (b2 << 8) | b3
 
 	fmt.Printf("%-20s %4d '", name, constant)
-	printValue(c.Constants.Values[constant])
+	PrintValue(c.Constants.Values[constant])
 	fmt.Println("'")
 
 	return offset + 4
 }
 
-
-func printValue(value common.Value) string {
+func PrintValue(value common.Value) string {
 	return fmt.Sprintf("%v", value)
 }
