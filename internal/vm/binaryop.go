@@ -1,22 +1,21 @@
 package vm
 
-import "golox/pkg/common"
-
 func (v *VM) BinaryOperation(op rune) {
 	a := v.Stack.Pop()
+	b := v.Stack.Pop()
 
 	switch op {
 	case '+':
-		v.Stack.UpdateTop(func(v common.Value) common.Value { return a + v })
+		v.Stack.Push(a + b)
 		return
 	case '-':
-		v.Stack.UpdateTop(func(v common.Value) common.Value { return a - v })
+		v.Stack.Push(a - b)
 		return
 	case '*':
-		v.Stack.UpdateTop(func(v common.Value) common.Value { return a * v })
+		v.Stack.Push(a * b)
 		return
 	case '/':
-		v.Stack.UpdateTop(func(v common.Value) common.Value { return a / v })
+		v.Stack.Push(a / b)
 		return
 	default:
 		return

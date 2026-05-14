@@ -14,7 +14,13 @@ tasks:
     desc: Run in dev mode
     cmds:
       - task: run
-
+  
+  exec:
+    desc: compile and run the code using the binary output
+    cmds:
+      - go build -o bin/golox.exe {{.APP}}
+      - bin/golox.exe {{.FILE}}
+  
   test: 
     desc: Run tests
     cmds: 

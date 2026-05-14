@@ -35,9 +35,9 @@ func (s *Stack[T]) GetAt(index int) T {
 	return s.values[index]
 }
 
-func (s *Stack[T]) UpdateTop(predicate func(v T) T) {
+func (s *Stack[T]) UpdateTop(mapper func(v T) T) {
 	lastIndex := s.top - 1
-	s.values[lastIndex] = predicate(s.values[lastIndex])
+	s.values[lastIndex] = mapper(s.values[lastIndex])
 }
 
 func (s *Stack[T]) Top() int {

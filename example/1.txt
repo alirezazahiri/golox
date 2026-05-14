@@ -1,0 +1,21 @@
+print "Alireza";
+
+// this is a comment
+fun add(a, b) {
+    return a + b;
+}
+fun sub(a, b) {
+    return a - b;
+}
+fun mul(a, b) {
+    return a * b;
+}
+fun div(a, b) {
+    return a / b;
+}
+
+var anonMul = fun(a, b) {
+    return mul(a, b);
+};
+
+print anonMul(1,2);
