@@ -1,0 +1,16 @@
+version: '3'
+
+vars:
+  APP: ./cmd/
+
+tasks:
+
+  run:
+    desc: Run cmd/main.go
+    cmds:
+      - go run {{.APP}}
+
+  dev:
+    desc: Run in dev mode
+    cmds:
+      - task: run
