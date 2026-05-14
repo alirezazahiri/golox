@@ -22,12 +22,12 @@ func main() {
 	if len(args) > 1 {
 		files = args[1:]
 		if files != nil && len(files) == 1 {
-			result = runFile(files[0])
+			result = runFile(v, files[0])
 		} else if len(files) > 1 {
 			panic("Usage: golox [script]")
 		}
 	} else {
-		repl()
+		repl(v)
 	}
 
 	v.Free()
@@ -40,7 +40,7 @@ func main() {
 	}
 }
 
-func runFile(path string) vm.InterpretResult {
+func runFile(v *vm.VM, path string) vm.InterpretResult {
 	f := file.New(path)
 
 	bytes, fileReadError := f.Read()
@@ -51,10 +51,10 @@ func runFile(path string) vm.InterpretResult {
 
 	fileContent := string(bytes)
 
-	return interpreter.Interpret(fileContent)
+	return interpreter.Interpret(v, fileContent)
 }
 
-func repl() {
+func repl(v *vm.VM) {
 	for {
 		fmt.Print("> ")
 		scanner := bufio.NewScanner(os.Stdin)
@@ -65,7 +65,7 @@ func repl() {
 			return
 		}
 
-		interpreter.Interpret(line)
+		interpreter.Interpret(v, line)
 	}
 }
 

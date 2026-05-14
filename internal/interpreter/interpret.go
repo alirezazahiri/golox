@@ -1,16 +1,39 @@
 package interpreter
 
 import (
+	"golox/internal/chunk"
+	"golox/internal/parser"
 	"golox/internal/scanner"
 	"golox/internal/vm"
+	"golox/pkg/debug"
 )
 
-func Interpret(source string) vm.InterpretResult {
-	compile(source)
-	return vm.InterpretOk
+func Interpret(v *vm.VM, source string) vm.InterpretResult {
+	c := chunk.New()
+
+	if !compile(source, c) {
+		c.Free()
+		return vm.InterpretCompileError
+	}
+
+	result := v.Interpret(c)
+
+	c.Free()
+	return result
 }
 
-func compile(source string) {
+func compile(source string, c *chunk.Chunk) bool {
 	s := scanner.New(source)
-	s.ScanTokens()
+	p := parser.New(s, c)
+
+	p.Advance()
+	p.Expression()
+
+	p.EmitReturn()
+
+	if !p.HadError {
+		debug.DisassembleChunk(c, "code")
+	}
+	
+	return !p.HadError
 }

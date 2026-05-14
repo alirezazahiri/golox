@@ -1,21 +1,21 @@
 package vm
 
 func (v *VM) BinaryOperation(op rune) {
-	a := v.Stack.Pop()
-	b := v.Stack.Pop()
+	right := v.Stack.Pop()
+	left := v.Stack.Pop()
 
 	switch op {
 	case '+':
-		v.Stack.Push(a + b)
+		v.Stack.Push(left + right)
 		return
 	case '-':
-		v.Stack.Push(a - b)
+		v.Stack.Push(left - right)
 		return
 	case '*':
-		v.Stack.Push(a * b)
+		v.Stack.Push(left * right)
 		return
 	case '/':
-		v.Stack.Push(a / b)
+		v.Stack.Push(left / right)
 		return
 	default:
 		return

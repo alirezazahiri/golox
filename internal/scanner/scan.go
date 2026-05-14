@@ -120,7 +120,7 @@ func (s *Scanner) makeToken(t TokenType) Token {
 }
 
 func (s *Scanner) errorToken(msg string) Token {
-	return NewToken(TOKEN_ERROR, 0, len(msg), s.Line, s.source[s.Start:s.Current])
+	return NewToken(TOKEN_ERROR, 0, len(msg), s.Line, msg)
 }
 
 func (s *Scanner) skipWhitespace() {
