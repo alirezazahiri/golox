@@ -59,6 +59,13 @@ func DisassembleInstruction(c *chunk.Chunk, offset int) int {
 	case byte(common.OpTrue):
 		return simpleInstruction("OP_TRUE", offset)
 
+	case byte(common.OpGreater):
+		return simpleInstruction("OP_GREATER", offset)
+	case byte(common.OpEqual):
+		return simpleInstruction("OP_EQUAL", offset)
+	case byte(common.OpLess):
+		return simpleInstruction("OP_LESS", offset)
+
 	default:
 		fmt.Printf("Unknown opcode %d\n", instruction)
 		return offset + 1

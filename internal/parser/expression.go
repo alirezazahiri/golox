@@ -40,6 +40,24 @@ func (p *Parser) binary() {
 	p.parsePrecedence((Precedence)(rule.Precedence + 1))
 	// Emit the operator instruction.
 	switch operatorType {
+	case scanner.TOKEN_BANG_EQUAL:
+		p.EmitBytes(byte(common.OpEqual), byte(common.OpBang))
+		break
+	case scanner.TOKEN_EQUAL_EQUAL:
+		p.EmitByte(byte(common.OpEqual))
+		break
+	case scanner.TOKEN_GREATER:
+		p.EmitByte(byte(common.OpGreater))
+		break
+	case scanner.TOKEN_GREATER_EQUAL:
+		p.EmitBytes(byte(common.OpLess), byte(common.OpBang))
+		break
+	case scanner.TOKEN_LESS:
+		p.EmitByte(byte(common.OpLess))
+		break
+	case scanner.TOKEN_LESS_EQUAL:
+		p.EmitBytes(byte(common.OpGreater), byte(common.OpBang))
+		break
 	case scanner.TOKEN_PLUS:
 		p.EmitByte(byte(common.OpAdd))
 		break

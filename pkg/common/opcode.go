@@ -6,6 +6,9 @@ const (
 	OpReturn OpCode = iota
 	OpConstant
 	OpConstantLong
+	OpEqual
+	OpGreater
+	OpLess
 	OpAdd
 	OpSubtract
 	OpMultiply

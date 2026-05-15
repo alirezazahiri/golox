@@ -8,6 +8,19 @@ const (
 	ValNumber
 )
 
+func (t ValueType) String() string {
+	switch t {
+	case ValBool:
+		return "bool"
+	case ValNil:
+		return "nil"
+	case ValNumber:
+		return "number"
+	default:
+		return ""
+	}
+}
+
 type Union struct {
 	Bool   bool
 	Number float64
@@ -42,7 +55,7 @@ func NumberValue(value float64) Value {
 		Type: ValNumber,
 		As: Union{
 			Number: value,
-			Bool: value != 0,
+			Bool:   value != 0,
 		},
 	}
 }

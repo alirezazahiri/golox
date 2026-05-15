@@ -44,6 +44,15 @@ func (v *VM) Run() InterpretResult {
 		case byte(common.OpConstant), byte(common.OpConstantLong):
 			result = v.ConstantOperation(instruction)
 			break
+		case byte(common.OpGreater):
+			result = v.BinaryOperation('>')
+			break
+		case byte(common.OpLess):
+			result = v.BinaryOperation('<')
+			break
+		case byte(common.OpEqual):
+			result = v.ValuesEqual()
+			break
 		case byte(common.OpAdd):
 			result = v.BinaryOperation('+')
 			break
