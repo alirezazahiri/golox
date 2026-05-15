@@ -54,7 +54,7 @@ func (v *VM) Run() InterpretResult {
 			result = v.ValuesEqual()
 			break
 		case byte(common.OpAdd):
-			result = v.BinaryOperation('+')
+			result = v.SumOperation()
 			break
 		case byte(common.OpSubtract):
 			result = v.BinaryOperation('-')

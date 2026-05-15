@@ -34,7 +34,7 @@ func (p *Parser) InitParserRules() {
 		scanner.TOKEN_LESS:          {nil, p.binary, PREC_COMPARISON},
 		scanner.TOKEN_LESS_EQUAL:    {nil, p.binary, PREC_COMPARISON},
 		scanner.TOKEN_IDENTIFIER:    {nil, nil, PREC_NONE},
-		scanner.TOKEN_STRING:        {nil, nil, PREC_NONE},
+		scanner.TOKEN_STRING:        {p.string, nil, PREC_NONE},
 		scanner.TOKEN_NUMBER:        {p.number, nil, PREC_NONE},
 		scanner.TOKEN_AND:           {nil, nil, PREC_NONE},
 		scanner.TOKEN_CLASS:         {nil, nil, PREC_NONE},

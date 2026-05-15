@@ -18,7 +18,6 @@ func (s *Scanner) string() Token {
 
 	s.advance()
 
-	// value := s.source[s.Start+1 : s.Current-1]
 	return s.makeToken(TOKEN_STRING)
 }
 
@@ -35,16 +34,5 @@ func (s *Scanner) number() Token {
 		}
 	}
 
-	// val, _ := strconv.ParseFloat(s.source[s.Start:s.Current], 64)
 	return s.makeToken(TOKEN_NUMBER)
-}
-
-func (s *Scanner) addLiteral(tokenType TokenType, literal any) {
-	// text := s.source[s.Start:s.Current]
-	// s.tokens = append(s.tokens, NewToken(
-	// 	tokenType,
-	// 	text,
-	// 	literal,
-	// 	s.line,
-	// ))
 }

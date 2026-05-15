@@ -3,9 +3,10 @@ package common
 type ValueType byte
 
 const (
-	ValBool ValueType = iota + 1
-	ValNil
+	ValBool ValueType = iota
 	ValNumber
+	ValObj
+	ValNil
 )
 
 func (t ValueType) String() string {
@@ -24,6 +25,7 @@ func (t ValueType) String() string {
 type Union struct {
 	Bool   bool
 	Number float64
+	Obj    Obj
 }
 
 type Value struct {

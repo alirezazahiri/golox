@@ -32,8 +32,8 @@ func (s *Stack[T]) Pop() T {
 }
 
 func (s *Stack[T]) GetAt(index int) T {
-	if index == -1 {
-		return s.values[s.top-1]
+	if index < 0 {
+		return s.values[s.top+index]
 	}
 	return s.values[index]
 }

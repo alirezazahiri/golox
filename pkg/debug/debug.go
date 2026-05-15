@@ -102,6 +102,8 @@ func PrintValue(value common.Value) string {
 		return "nil"
 	} else if value.IsBool() {
 		return fmt.Sprintf("%v", value.As.Bool)
+	} else if value.IsString() {
+		return fmt.Sprintf("%s", value.AsString().Content)
 	}
 	return fmt.Sprintf("%v", value.As.Number)
 }
