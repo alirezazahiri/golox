@@ -11,4 +11,8 @@ const (
 	OpMultiply
 	OpDivide
 	OpNegate
+	OpBang
+	OpFalse
+	OpTrue 
+	OpNil
 )

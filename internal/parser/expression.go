@@ -24,6 +24,9 @@ func (p *Parser) unary() {
 	case scanner.TOKEN_MINUS:
 		p.EmitByte(byte(common.OpNegate))
 		break
+	case scanner.TOKEN_BANG:
+		p.EmitByte(byte(common.OpBang))
+		break
 	default:
 		return
 	}

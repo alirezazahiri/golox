@@ -10,7 +10,7 @@ import (
 type InterpretResult byte
 
 const (
-	InterpretOk = iota
+	InterpretOk InterpretResult = iota
 	InterpretCompileError
 	InterpretRuntimeError
 )
@@ -38,41 +38,47 @@ func (v *VM) Run() InterpretResult {
 			return InterpretRuntimeError
 		}
 
+		var result InterpretResult
+
 		switch instruction {
-		case byte(common.OpConstant):
-			c, err := v.ReadConstant()
-			if err != nil {
-				return InterpretRuntimeError
-			}
-			v.Stack.Push(c)
-			fmt.Println(debug.PrintValue(c))
-			break
-		case byte(common.OpConstantLong):
-			c, err := v.ReadConstantLong()
-			if err != nil {
-				return InterpretRuntimeError
-			}
-			v.Stack.Push(c)
-			fmt.Println(debug.PrintValue(c))
+		case byte(common.OpConstant), byte(common.OpConstantLong):
+			result = v.ConstantOperation(instruction)
 			break
 		case byte(common.OpAdd):
-			v.BinaryOperation('+')
+			result = v.BinaryOperation('+')
 			break
 		case byte(common.OpSubtract):
-			v.BinaryOperation('-')
+			result = v.BinaryOperation('-')
 			break
 		case byte(common.OpMultiply):
-			v.BinaryOperation('*')
+			result = v.BinaryOperation('*')
 			break
 		case byte(common.OpDivide):
-			v.BinaryOperation('/')
+			result = v.BinaryOperation('/')
 			break
 		case byte(common.OpNegate):
-			v.Stack.UpdateTop(func(v common.Value) common.Value { return -v })
+			result = v.UnaryOperation('-')
+			break
+		case byte(common.OpBang):
+			result = v.UnaryOperation('!')
+			break
+		case byte(common.OpNil):
+			v.Stack.Push(common.NilValue())
+			break
+		case byte(common.OpFalse):
+			v.Stack.Push(common.BoolValue(false))
+			break
+		case byte(common.OpTrue):
+			v.Stack.Push(common.BoolValue(true))
 			break
 		case byte(common.OpReturn):
-			fmt.Println(debug.PrintValue(v.Stack.Pop()))
+			if v.DebugMode {
+				fmt.Println(debug.PrintValue(v.Stack.Pop()))
+			}
 			return InterpretOk
+		}
+		if result != InterpretOk {
+			return result
 		}
 	}
 }

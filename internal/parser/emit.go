@@ -6,7 +6,9 @@ import (
 )
 
 func (p *Parser) EmitBytes(bs ...byte) {
-	p.chunk.Code = append(p.chunk.Code, bs...)
+	for _, b := range bs {
+		p.chunk.Write(b, p.scanner.Line)
+	}
 }
 
 func (p *Parser) EmitByte(b byte) {
@@ -20,7 +22,7 @@ func (p *Parser) EmitReturn() {
 func (p *Parser) EmitConstant(value common.Value) {
 	constant := p.chunk.AddConstant(value)
 
-	if constant < 256 {
+	if constant <= 0xff {
 		p.EmitBytes(
 			byte(common.OpConstant),
 			byte(constant),

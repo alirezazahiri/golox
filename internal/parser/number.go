@@ -10,6 +10,5 @@ func (p *Parser) number() {
 	if err != nil {
 		return
 	}
-	
-	p.EmitConstant(common.Value(value))
+	p.EmitConstant(common.NumberValue(value))
 }

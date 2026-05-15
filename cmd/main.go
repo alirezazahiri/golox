@@ -12,6 +12,7 @@ import (
 
 func main() {
 	v := vm.New()
+	v.ActivateDebugMode()
 
 	args := os.Args
 

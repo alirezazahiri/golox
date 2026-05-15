@@ -3,7 +3,7 @@ package chunk
 import "golox/pkg/common"
 
 type Chunk struct {
-	Code      []byte	
+	Code      []byte
 	Constants *common.ValueArray
 	Lines     []LineStart
 }
@@ -33,22 +33,6 @@ func (c *Chunk) AddConstant(constant common.Value) int {
 	c.Constants.Write(constant)
 	return c.Constants.Size() - 1
 }
-
-func (c *Chunk) WriteConstant(value common.Value, line int) {
-	index := c.AddConstant(value)
-
-	if index <= 0xff {
-		c.Write(byte(common.OpConstant), line)
-		c.Write(byte(index), line)
-	} else {
-		c.Write(byte(common.OpConstantLong), line)
-
-		c.Write(byte((index >> 16) & 0xff), line)
-		c.Write(byte((index >> 8) & 0xff), line)
-		c.Write(byte(index & 0xff), line)
-	}
-}
-
 
 func (c *Chunk) Free() {
 	c.Code = nil

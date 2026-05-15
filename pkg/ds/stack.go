@@ -32,6 +32,9 @@ func (s *Stack[T]) Pop() T {
 }
 
 func (s *Stack[T]) GetAt(index int) T {
+	if index == -1 {
+		return s.values[s.top-1]
+	}
 	return s.values[index]
 }
 
@@ -42,6 +45,11 @@ func (s *Stack[T]) UpdateTop(mapper func(v T) T) {
 
 func (s *Stack[T]) Top() int {
 	return s.top
+}
+
+func (s *Stack[T]) Reset() {
+	s.values = nil
+	s.top = 0
 }
 
 const (

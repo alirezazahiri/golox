@@ -40,7 +40,9 @@ func DisassembleInstruction(c *chunk.Chunk, offset int) int {
 
 	case byte(common.OpNegate):
 		return simpleInstruction("OP_NEGATE", offset)
-	
+	case byte(common.OpBang):
+		return simpleInstruction("OP_BANG", offset)
+
 	case byte(common.OpAdd):
 		return simpleInstruction("OP_ADD", offset)
 	case byte(common.OpSubtract):
@@ -49,7 +51,14 @@ func DisassembleInstruction(c *chunk.Chunk, offset int) int {
 		return simpleInstruction("OP_MULTIPLY", offset)
 	case byte(common.OpDivide):
 		return simpleInstruction("OP_DIVIDE", offset)
-	
+
+	case byte(common.OpNil):
+		return simpleInstruction("OP_NIL", offset)
+	case byte(common.OpFalse):
+		return simpleInstruction("OP_FALSE", offset)
+	case byte(common.OpTrue):
+		return simpleInstruction("OP_TRUE", offset)
+
 	default:
 		fmt.Printf("Unknown opcode %d\n", instruction)
 		return offset + 1
@@ -82,5 +91,10 @@ func constantLongInstruction(name string, c *chunk.Chunk, offset int) int {
 }
 
 func PrintValue(value common.Value) string {
-	return fmt.Sprintf("%v", value)
+	if value.IsNil() {
+		return "nil"
+	} else if value.IsBool() {
+		return fmt.Sprintf("%v", value.As.Bool)
+	}
+	return fmt.Sprintf("%v", value.As.Number)
 }
