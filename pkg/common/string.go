@@ -3,21 +3,18 @@ package common
 type ObjString struct {
 	Content string
 	Length  int
+	Hash    uint32
 }
 
 func (s *ObjString) Type() ObjType {
 	return ObjStringType
 }
 
-func StringValue(s string) Value {
+func StringObjValue(s *ObjString) Value {
 	return Value{
 		Type: ValObj,
 		As: Union{
-			Obj: &ObjString{
-				Content: s,
-				Length:  len(s),
-			},
-			Bool: s != "",
+			Obj: s,
 		},
 	}
 }
@@ -32,4 +29,15 @@ func (v Value) IsString() bool {
 
 func (v Value) AsString() *ObjString {
 	return v.As.Obj.(*ObjString)
+}
+
+func HashString(key string) uint32 {
+	var hash uint32 = 2166136261
+
+	for i := range len(key) {
+		hash ^= uint32(key[i])
+		hash *= 16777619
+	}
+
+	return hash
 }

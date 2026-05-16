@@ -11,7 +11,7 @@ import (
 func Interpret(v *vm.VM, source string) vm.InterpretResult {
 	c := chunk.New()
 
-	if !compile(source, c) {
+	if !compile(source, c, v) {
 		c.Free()
 		return vm.InterpretCompileError
 	}
@@ -22,9 +22,9 @@ func Interpret(v *vm.VM, source string) vm.InterpretResult {
 	return result
 }
 
-func compile(source string, c *chunk.Chunk) bool {
+func compile(source string, c *chunk.Chunk, v *vm.VM) bool {
 	s := scanner.New(source)
-	p := parser.New(s, c)
+	p := parser.New(s, c, v)
 
 	p.Advance()
 	p.Expression()

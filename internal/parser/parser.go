@@ -3,6 +3,7 @@ package parser
 import (
 	"golox/internal/chunk"
 	"golox/internal/scanner"
+	"golox/internal/vm"
 )
 
 type Parser struct {
@@ -12,13 +13,15 @@ type Parser struct {
 	PanicMode bool
 	scanner   *scanner.Scanner
 	chunk     *chunk.Chunk
+	vm        *vm.VM
 	rules     map[scanner.TokenType]ParserRule
 }
 
-func New(s *scanner.Scanner, c *chunk.Chunk) *Parser {
+func New(s *scanner.Scanner, c *chunk.Chunk, v *vm.VM) *Parser {
 	p := &Parser{
 		scanner: s,
 		chunk:   c,
+		vm:      v,
 	}
 	p.InitParserRules()
 	return p

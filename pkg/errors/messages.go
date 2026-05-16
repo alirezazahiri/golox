@@ -10,4 +10,5 @@ const (
 	OperandsMustBeNumbers       string = "operands must be numbers"
 	OperandMustBeNumber         string = "operand must be a number"
 	ExpectedOperandToBeOfType   string = "expected operand to be of type %s, but got %s"
+	ExpectedOperandsToBeOfType   string = "expected operands to be of type %s, but got (%s, %s)"
 )
