@@ -1,1 +1,6 @@
-"st" + "ri" + "ng" == "string";
+print 1 + 2;
+print 3 * 5;
+
+var name = "alireza";
+
+print name;

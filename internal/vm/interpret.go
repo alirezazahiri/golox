@@ -5,6 +5,7 @@ import (
 	"golox/internal/chunk"
 	"golox/pkg/common"
 	"golox/pkg/debug"
+	"golox/pkg/errors"
 )
 
 type InterpretResult byte
@@ -68,6 +69,13 @@ func (v *VM) Run() InterpretResult {
 		case byte(common.OpNegate):
 			result = v.UnaryOperation('-')
 			break
+		case byte(common.OpPrint):
+			result = v.PrintValue()
+			fmt.Println()
+			break
+		case byte(common.OpPop):
+			v.Stack.Pop()
+			break
 		case byte(common.OpBang):
 			result = v.UnaryOperation('!')
 			break
@@ -79,6 +87,31 @@ func (v *VM) Run() InterpretResult {
 			break
 		case byte(common.OpTrue):
 			v.Stack.Push(common.BoolValue(true))
+			break
+		case byte(common.OpDefineGlobal):
+			name, err := v.ReadString()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			value := v.Stack.GetAt(0)
+			success := v.Globals.Set(name, value)
+			if !success {
+				v.runtimeError(errors.FailedToSetValueToVariable, name.Content)
+				return InterpretRuntimeError
+			}
+			v.Stack.Pop()
+			break
+		case byte(common.OpGetGlobal):
+			name, err := v.ReadString()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			value, found := v.Globals.Get(name)
+			if !found {
+				v.runtimeError(errors.UndefinedVariable, name.Content)
+				return InterpretRuntimeError
+			}
+			v.Stack.Push(value)
 			break
 		case byte(common.OpReturn):
 			if v.DebugMode {

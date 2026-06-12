@@ -14,8 +14,12 @@ const (
 	OpMultiply
 	OpDivide
 	OpNegate
+	OpPop
+	OpPrint
 	OpBang
 	OpFalse
 	OpTrue 
 	OpNil
+	OpDefineGlobal
+	OpGetGlobal
 )

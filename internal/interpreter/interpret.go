@@ -27,13 +27,16 @@ func compile(source string, c *chunk.Chunk, v *vm.VM) bool {
 	p := parser.New(s, c, v)
 
 	p.Advance()
-	p.Expression()
+
+	for !p.Match(scanner.TOKEN_EOF) {
+		p.Declaration()
+	}
 
 	p.EmitReturn()
 
 	if !p.HadError {
 		debug.DisassembleChunk(c, "code")
 	}
-	
+
 	return !p.HadError
 }

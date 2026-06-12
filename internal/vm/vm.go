@@ -16,6 +16,7 @@ type VM struct {
 	Stack *ds.Stack[common.Value]
 
 	Strings *table.Table
+	Globals *table.Table
 
 	DebugMode bool
 }
@@ -26,6 +27,7 @@ func New() *VM {
 		Stack:     ds.NewStack[common.Value](),
 		DebugMode: false,
 		Strings:   table.New(),
+		Globals:   table.New(),
 	}
 }
 

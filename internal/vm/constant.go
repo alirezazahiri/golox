@@ -38,7 +38,7 @@ func (v *VM) ReadConstantLong() (common.Value, error) {
 func (v *VM) ConstantOperation(op byte) InterpretResult {
 	var c common.Value
 	var err error
-	
+
 	switch op {
 	case byte(common.OpConstant):
 		c, err = v.ReadConstant()
@@ -58,4 +58,12 @@ func (v *VM) ConstantOperation(op byte) InterpretResult {
 	}
 
 	return InterpretOk
+}
+
+func (v *VM) ReadString() (*common.ObjString, error) {
+	name, err := v.ReadConstant()
+	if err != nil {
+		return nil, err
+	}
+	return name.AsString(), nil
 }

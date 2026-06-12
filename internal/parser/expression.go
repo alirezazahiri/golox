@@ -6,12 +6,12 @@ import (
 	"golox/pkg/errors"
 )
 
-func (p *Parser) Expression() {
+func (p *Parser) expression() {
 	p.parsePrecedence(PREC_ASSIGNMENT)
 }
 
 func (p *Parser) grouping() {
-	p.Expression()
+	p.expression()
 	p.Consume(scanner.TOKEN_RIGHT_PAREN, errors.ExpectRParenAfterExpression)
 }
 

@@ -48,3 +48,16 @@ func (p *Parser) Consume(t scanner.TokenType, msg string) {
 
 	p.errorAtCurrent(msg)
 }
+
+func (p *Parser) Match(t scanner.TokenType) bool {
+	if !p.Check(t) {
+		return false
+	}
+
+	p.Advance()
+	return true
+}
+
+func (p *Parser) Check(t scanner.TokenType) bool {
+	return p.Current.Type == t
+}

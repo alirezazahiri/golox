@@ -40,6 +40,10 @@ func DisassembleInstruction(c *chunk.Chunk, offset int) int {
 
 	case byte(common.OpNegate):
 		return simpleInstruction("OP_NEGATE", offset)
+	case byte(common.OpPrint):
+		return simpleInstruction("OP_PRINT", offset)
+	case byte(common.OpPop):
+		return simpleInstruction("OP_POP", offset)
 	case byte(common.OpBang):
 		return simpleInstruction("OP_BANG", offset)
 
@@ -58,6 +62,12 @@ func DisassembleInstruction(c *chunk.Chunk, offset int) int {
 		return simpleInstruction("OP_FALSE", offset)
 	case byte(common.OpTrue):
 		return simpleInstruction("OP_TRUE", offset)
+
+	case byte(common.OpDefineGlobal):
+		return constantInstruction("OP_DEFINE_GLOBAL", c, offset)
+	case byte(common.OpGetGlobal):
+		return constantInstruction("OP_GET_GLOBAL", c, offset)
+
 
 	case byte(common.OpGreater):
 		return simpleInstruction("OP_GREATER", offset)
