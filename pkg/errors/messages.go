@@ -18,4 +18,5 @@ const (
 	ExpectedOperandsToBeOfType              string = "expected operands to be of type %s, but got (%s, %s)"
 	FailedToSetValueToVariable              string = "failed to set value for the variable %s"
 	UndefinedVariable                       string = "variable with name \"%s\" is not defined"
+	
 )

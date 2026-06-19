@@ -27,11 +27,12 @@ func (p *Parser) parsePrecedence(prec Precedence) {
 		return
 	}
 	
-	prefixRule()
+	canAssign := prec <= PREC_ASSIGNMENT
+	prefixRule(canAssign)
 	
 	for prec <= p.getRule(p.Current.Type).Precedence {
 		p.Advance()
 		infixRule := p.getRule(p.Previous.Type).Infix
-		infixRule()
+		infixRule(canAssign)
 	}
 }

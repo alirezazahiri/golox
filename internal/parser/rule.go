@@ -4,7 +4,7 @@ import (
 	"golox/internal/scanner"
 )
 
-type ParseFn func()
+type ParseFn func(canAssign bool)
 
 type ParserRule struct {
 	Prefix     ParseFn

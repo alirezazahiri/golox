@@ -5,7 +5,7 @@ import (
 	"golox/pkg/common"
 )
 
-func (p *Parser) literal() {
+func (p *Parser) literal(canAssign bool) {
 	switch p.Previous.Type {
 	case scanner.TOKEN_FALSE:
 		p.EmitByte(byte(common.OpFalse))

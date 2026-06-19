@@ -19,11 +19,16 @@ func (p *Parser) defineVariable(name uint8) {
 	p.EmitBytes(byte(common.OpDefineGlobal), name)
 }
 
-func (p *Parser) variable() {
-	p.namedVariable(p.Previous)
+func (p *Parser) variable(canAssign bool) {
+	p.namedVariable(p.Previous, canAssign)
 }
 
-func (p *Parser) namedVariable(name scanner.Token) {
+func (p *Parser) namedVariable(name scanner.Token, canAssign bool) {
 	arg := p.identifierConstant(&name)
-	p.EmitBytes(byte(common.OpGetGlobal), arg)
+	if (canAssign && p.Match(scanner.TOKEN_EQUAL)) {
+		p.expression()
+		p.EmitBytes(byte(common.OpSetGlobal), arg)
+	} else {
+		p.EmitBytes(byte(common.OpGetGlobal), arg)
+	}
 }

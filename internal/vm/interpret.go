@@ -113,6 +113,14 @@ func (v *VM) Run() InterpretResult {
 			}
 			v.Stack.Push(value)
 			break
+		case byte(common.OpSetGlobal):
+			name, err := v.ReadString()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			value := v.Stack.GetAt(0)
+			v.Globals.Set(name, value)
+			break
 		case byte(common.OpReturn):
 			if v.DebugMode {
 				fmt.Println(debug.PrintValue(v.Stack.Pop()))

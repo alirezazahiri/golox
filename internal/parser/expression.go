@@ -10,12 +10,12 @@ func (p *Parser) expression() {
 	p.parsePrecedence(PREC_ASSIGNMENT)
 }
 
-func (p *Parser) grouping() {
+func (p *Parser) grouping(canAssign bool) {
 	p.expression()
 	p.Consume(scanner.TOKEN_RIGHT_PAREN, errors.ExpectRParenAfterExpression)
 }
 
-func (p *Parser) unary() {
+func (p *Parser) unary(canAssign bool) {
 	operatorType := p.Previous.Type
 
 	p.parsePrecedence(PREC_UNARY)
@@ -32,7 +32,7 @@ func (p *Parser) unary() {
 	}
 }
 
-func (p *Parser) binary() {
+func (p *Parser) binary(canAssign bool) {
 	// Remember the operator.
 	operatorType := p.Previous.Type
 	// Compile the right operand.

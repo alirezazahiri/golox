@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func (p *Parser) number() {
+func (p *Parser) number(canAssign bool) {
 	value, err := strconv.ParseFloat(p.Previous.Lexeme, 64)
 	if err != nil {
 		return
