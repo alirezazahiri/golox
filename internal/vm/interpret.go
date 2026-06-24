@@ -121,6 +121,20 @@ func (v *VM) Run() InterpretResult {
 			value := v.Stack.GetAt(0)
 			v.Globals.Set(name, value)
 			break
+		case byte(common.OpGetLocal):
+			slot, err := v.ReadByte()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			v.Stack.Push(v.Stack.GetAt(int(slot)))
+			break
+		case byte(common.OpSetLocal):
+			slot, err := v.ReadByte()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			v.Stack.SetAt(int(slot), v.Stack.GetAt(-1))
+			break
 		case byte(common.OpReturn):
 			if v.DebugMode {
 				fmt.Println(debug.PrintValue(v.Stack.Pop()))

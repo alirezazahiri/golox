@@ -14,7 +14,8 @@ type Parser struct {
 	scanner   *scanner.Scanner
 	chunk     *chunk.Chunk
 	vm        *vm.VM
-	rules     map[scanner.TokenType]ParserRule
+	rules     map[scanner.TokenType]ParseRule
+	compiler  *Compiler
 }
 
 func New(s *scanner.Scanner, c *chunk.Chunk, v *vm.VM) *Parser {
@@ -22,6 +23,7 @@ func New(s *scanner.Scanner, c *chunk.Chunk, v *vm.VM) *Parser {
 		scanner: s,
 		chunk:   c,
 		vm:      v,
+		compiler: NewCompiler(),
 	}
 	p.InitParserRules()
 	return p

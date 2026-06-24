@@ -22,5 +22,7 @@ const (
 	OpNil
 	OpDefineGlobal
 	OpGetGlobal
+	OpGetLocal
 	OpSetGlobal
+	OpSetLocal
 )

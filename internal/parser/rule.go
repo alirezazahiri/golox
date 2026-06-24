@@ -6,14 +6,14 @@ import (
 
 type ParseFn func(canAssign bool)
 
-type ParserRule struct {
+type ParseRule struct {
 	Prefix     ParseFn
 	Infix      ParseFn
 	Precedence Precedence
 }
 
 func (p *Parser) InitParserRules() {
-	p.rules = map[scanner.TokenType]ParserRule{
+	p.rules = map[scanner.TokenType]ParseRule{
 		scanner.TOKEN_LEFT_PAREN:    {p.grouping, nil, PREC_NONE},
 		scanner.TOKEN_RIGHT_PAREN:   {nil, nil, PREC_NONE},
 		scanner.TOKEN_LEFT_BRACE:    {nil, nil, PREC_NONE},

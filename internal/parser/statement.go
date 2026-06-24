@@ -35,9 +35,37 @@ func (p *Parser) varDeclaration() {
 func (p *Parser) statement() {
 	if p.Match(scanner.TOKEN_PRINT) {
 		p.printStatement()
+	} else if p.Match(scanner.TOKEN_LEFT_BRACE) {
+		p.beginScope()
+		p.block()
+		p.endScope()
 	} else {
 		p.expressionStatement()
 	}
+}
+
+func (p *Parser) beginScope() {
+	p.compiler.ScopeDepth++
+}
+
+func (p *Parser) block() {
+	for !p.Check(scanner.TOKEN_RIGHT_BRACE) && !p.Check(scanner.TOKEN_EOF) {
+		p.Declaration()
+	}
+
+	p.Consume(scanner.TOKEN_RIGHT_BRACE, errors.ExpectRightBraceAfterBlock)
+}
+
+func (p *Parser) endScope() {
+    p.compiler.ScopeDepth--
+
+    for p.compiler.LocalCount > 0 &&
+        p.compiler.Locals[p.compiler.LocalCount-1].Depth > p.compiler.ScopeDepth {
+        if p.compiler.Locals[p.compiler.LocalCount-1].Depth != -1 {
+            p.EmitByte(byte(common.OpPop))
+        }
+        p.compiler.LocalCount--
+    }
 }
 
 func (p *Parser) printStatement() {

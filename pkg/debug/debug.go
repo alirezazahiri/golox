@@ -69,7 +69,10 @@ func DisassembleInstruction(c *chunk.Chunk, offset int) int {
 		return constantInstruction("OP_GET_GLOBAL", c, offset)
 	case byte(common.OpSetGlobal):
 		return constantInstruction("OP_SET_GLOBAL", c, offset)
-
+	case byte(common.OpGetLocal):
+		return constantInstruction("OP_GET_LOCAL", c, offset)
+	case byte(common.OpSetLocal):
+		return constantInstruction("OP_SET_LOCAL", c, offset)
 	case byte(common.OpGreater):
 		return simpleInstruction("OP_GREATER", offset)
 	case byte(common.OpEqual):

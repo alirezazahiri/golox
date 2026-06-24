@@ -18,5 +18,7 @@ const (
 	ExpectedOperandsToBeOfType              string = "expected operands to be of type %s, but got (%s, %s)"
 	FailedToSetValueToVariable              string = "failed to set value for the variable %s"
 	UndefinedVariable                       string = "variable with name \"%s\" is not defined"
-	
+	ExpectRightBraceAfterBlock              string = "expected '}' after block"
+	TooManyLocalVariables                   string = "too many local variables in one function"
+	AlreadyVariableWithThisNameInThisScope string = "already variable with this name in this scope"
 )

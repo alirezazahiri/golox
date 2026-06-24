@@ -38,6 +38,10 @@ func (s *Stack[T]) GetAt(index int) T {
 	return s.values[index]
 }
 
+func (s *Stack[T]) SetAt(index int, value T) {
+	s.values[index] = value
+}
+
 func (s *Stack[T]) UpdateTop(mapper func(v T) T) {
 	lastIndex := s.top - 1
 	s.values[lastIndex] = mapper(s.values[lastIndex])

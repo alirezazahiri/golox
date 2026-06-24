@@ -75,7 +75,7 @@ func (p *Parser) binary(canAssign bool) {
 	}
 }
 
-func (p *Parser) getRule(t scanner.TokenType) *ParserRule {
+func (p *Parser) getRule(t scanner.TokenType) *ParseRule {
 	rule, exists := p.rules[t]
 	if !exists {
 		return nil
