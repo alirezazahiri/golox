@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"golox/internal/scanner"
+	"golox/pkg/common"
 	"golox/pkg/errors"
 )
 
@@ -45,9 +46,9 @@ func (c *Compiler) markInitialized() {
 func (c *Compiler) resolveLocal(name scanner.Token) (int, bool) {
 	for i := c.LocalCount - 1; i >= 0; i-- {
 		local := c.Locals[i]
-		if local.Name.Lexeme == name.Lexeme {
+		if common.IdentifiersEqual(&local.Name, &name) {
 			if local.Depth == -1 {
-				// error: can't read local before initializer
+				c.error("can't read local variable in its own initializer")
 			}
 			return i, true
 		}

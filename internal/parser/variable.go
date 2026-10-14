@@ -38,16 +38,14 @@ func (p *Parser) declareVariable() {
 		if local.Depth != -1 && local.Depth < p.compiler.ScopeDepth {
 			break
 		}
-		if identifiersEqual(&name, &local.Name) {
+		if common.IdentifiersEqual(&name, &local.Name) {
 			p.error(errors.AlreadyVariableWithThisNameInThisScope)
 		}
 	}
 	p.compiler.addLocal(name)
 }
 
-func identifiersEqual(a *scanner.Token, b *scanner.Token) bool {
-	return a.Lexeme == b.Lexeme
-}
+
 
 func (p *Parser) variable(canAssign bool) {
 	p.namedVariable(p.Previous, canAssign)
