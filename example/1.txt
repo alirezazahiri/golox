@@ -1,10 +1,7 @@
 {
-    {
-        var a = "outer";
-        print a;
-        a = "outer set";
-        print a;
+    if (0) {
+        print "passed";
+    } else {
+        print "not passed";
     }
-    var a = "inner";
-    print a;
 }

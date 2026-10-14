@@ -16,6 +16,8 @@ const (
 	OpNegate
 	OpPop
 	OpPrint
+	OpJumpIfFalse
+	OpJump
 	OpBang
 	OpFalse
 	OpTrue 

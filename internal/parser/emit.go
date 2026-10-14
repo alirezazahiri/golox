@@ -37,3 +37,10 @@ func (p *Parser) EmitConstant(value common.Value) {
 		p.error(errors.TooManyConstantsInOneChunk)
 	}
 }
+
+func (p *Parser) EmitJump(instruction byte) int {
+	p.EmitByte(instruction)
+	p.EmitByte(0xff)
+	p.EmitByte(0xff)
+	return len(p.chunk.Code) - 2
+}

@@ -4,6 +4,7 @@ import (
 	"golox/internal/scanner"
 	"golox/pkg/common"
 	"golox/pkg/errors"
+	"math"
 )
 
 func (p *Parser) Declaration() {
@@ -21,7 +22,7 @@ func (p *Parser) Declaration() {
 
 func (p *Parser) varDeclaration() {
 	global := p.parseVariable(errors.ExpectIdentifierAfterVar)
-	
+
 	if p.Match(scanner.TOKEN_EQUAL) {
 		p.expression()
 	} else {
@@ -35,6 +36,8 @@ func (p *Parser) varDeclaration() {
 func (p *Parser) statement() {
 	if p.Match(scanner.TOKEN_PRINT) {
 		p.printStatement()
+	} else if p.Match(scanner.TOKEN_IF) {
+		p.ifStatement()
 	} else if p.Match(scanner.TOKEN_LEFT_BRACE) {
 		p.beginScope()
 		p.block()
@@ -57,21 +60,53 @@ func (p *Parser) block() {
 }
 
 func (p *Parser) endScope() {
-    p.compiler.ScopeDepth--
+	p.compiler.ScopeDepth--
 
-    for p.compiler.LocalCount > 0 &&
-        p.compiler.Locals[p.compiler.LocalCount-1].Depth > p.compiler.ScopeDepth {
-        if p.compiler.Locals[p.compiler.LocalCount-1].Depth != -1 {
-            p.EmitByte(byte(common.OpPop))
-        }
-        p.compiler.LocalCount--
-    }
+	for p.compiler.LocalCount > 0 &&
+		p.compiler.Locals[p.compiler.LocalCount-1].Depth > p.compiler.ScopeDepth {
+		if p.compiler.Locals[p.compiler.LocalCount-1].Depth != -1 {
+			p.EmitByte(byte(common.OpPop))
+		}
+		p.compiler.LocalCount--
+	}
 }
 
 func (p *Parser) printStatement() {
 	p.expression()
 	p.Consume(scanner.TOKEN_SEMICOLON, errors.ExpectSemicolonAfterPrintStatement)
 	p.EmitByte(byte(common.OpPrint))
+}
+
+func (p *Parser) ifStatement() {
+	p.Consume(scanner.TOKEN_LEFT_PAREN, errors.ExpectLeftParenAfterIf)
+	p.expression()
+	p.Consume(scanner.TOKEN_RIGHT_PAREN, errors.ExpectRightParenAfterCond)
+
+	thenJump := p.EmitJump(byte(common.OpJumpIfFalse))
+	p.EmitByte(byte(common.OpPop))
+	p.statement()
+	
+	elseJump := p.EmitJump(byte(common.OpJump))
+	
+	p.patchJump(thenJump)
+	p.EmitByte(byte(common.OpPop))
+
+	if p.Match(scanner.TOKEN_ELSE) {
+		p.statement()
+	}
+
+	p.patchJump(elseJump)
+}
+
+func (p *Parser) patchJump(offset int) {
+	jump := len(p.chunk.Code) - offset - 2
+
+	if jump > math.MaxUint16 {
+		p.error("too much code to jump over")
+	}
+
+	p.chunk.Code[offset] = byte((jump >> 8) & 0xff)
+	p.chunk.Code[offset+1] = byte(jump & 0xff)
 }
 
 func (p *Parser) expressionStatement() {

@@ -71,6 +71,10 @@ func (v Value) IsNil() bool {
 func (v Value) IsNumber() bool {
 	return v.Type == ValNumber
 }
+func (v Value) IsFalsey() bool {
+	// CRITICAL: v.As.Bool needs careful attention in case if 
+	return v.IsNil() || !v.As.Bool
+}
 
 type ValueArray struct {
 	Values []Value

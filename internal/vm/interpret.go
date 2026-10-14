@@ -135,6 +135,17 @@ func (v *VM) Run() InterpretResult {
 			}
 			v.Stack.SetAt(int(slot), v.Stack.GetAt(-1))
 			break
+		case byte(common.OpJumpIfFalse):
+			offset := v.ReadShort()
+			value := v.Stack.GetAt(0)
+			if value.IsFalsey() {
+				v.IP += offset
+			}
+			break
+		case byte(common.OpJump):
+			offset := v.ReadShort()
+			v.IP += offset
+			break
 		case byte(common.OpReturn):
 			if v.DebugMode {
 				fmt.Println(debug.PrintValue(v.Stack.Pop()))
@@ -145,4 +156,10 @@ func (v *VM) Run() InterpretResult {
 			return result
 		}
 	}
+}
+
+func (v *VM) ReadShort() int {
+	offset := (int(v.Chunk.Code[v.IP]) << 8) | int(v.Chunk.Code[v.IP+1])
+	v.IP += 2
+	return offset
 }
