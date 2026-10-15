@@ -137,7 +137,7 @@ func (v *VM) Run() InterpretResult {
 			break
 		case byte(common.OpJumpIfFalse):
 			offset := v.ReadShort()
-			value := v.Stack.GetAt(0)
+			value := v.Stack.GetAt(-1)
 			if value.IsFalsey() {
 				v.IP += offset
 			}
@@ -145,6 +145,10 @@ func (v *VM) Run() InterpretResult {
 		case byte(common.OpJump):
 			offset := v.ReadShort()
 			v.IP += offset
+			break
+		case byte(common.OpLoop):
+			offset := v.ReadShort()
+			v.IP -= offset
 			break
 		case byte(common.OpReturn):
 			if v.DebugMode {
@@ -159,7 +163,7 @@ func (v *VM) Run() InterpretResult {
 }
 
 func (v *VM) ReadShort() int {
-	offset := (int(v.Chunk.Code[v.IP]) << 8) | int(v.Chunk.Code[v.IP+1])
+	offset := (uint16(v.Chunk.Code[v.IP]) << 8) | uint16(v.Chunk.Code[v.IP+1])
 	v.IP += 2
-	return offset
+	return int(offset)
 }

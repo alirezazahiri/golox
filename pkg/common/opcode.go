@@ -18,6 +18,7 @@ const (
 	OpPrint
 	OpJumpIfFalse
 	OpJump
+	OpLoop
 	OpBang
 	OpFalse
 	OpTrue 

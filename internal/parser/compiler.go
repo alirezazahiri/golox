@@ -48,7 +48,7 @@ func (c *Compiler) resolveLocal(name scanner.Token) (int, bool) {
 		local := c.Locals[i]
 		if common.IdentifiersEqual(&local.Name, &name) {
 			if local.Depth == -1 {
-				c.error("can't read local variable in its own initializer")
+				c.error(errors.CannotAccessVariableInItsInitializer)
 			}
 			return i, true
 		}

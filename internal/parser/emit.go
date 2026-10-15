@@ -3,6 +3,7 @@ package parser
 import (
 	"golox/pkg/common"
 	"golox/pkg/errors"
+	"math"
 )
 
 func (p *Parser) EmitBytes(bs ...byte) {
@@ -43,4 +44,17 @@ func (p *Parser) EmitJump(instruction byte) int {
 	p.EmitByte(0xff)
 	p.EmitByte(0xff)
 	return len(p.chunk.Code) - 2
+}
+
+func (p *Parser) EmitLoop(loopStart int) {
+	p.EmitByte(byte(common.OpLoop))
+
+	offset := len(p.chunk.Code) - loopStart + 2
+
+	if offset > math.MaxUint16 {
+		p.error(errors.LoopBodyTooLarge)
+	}
+
+	p.EmitByte(byte(offset>>8) & 0xFF)
+	p.EmitByte(byte(offset & 0xFF))
 }

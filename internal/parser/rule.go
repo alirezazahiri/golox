@@ -2,6 +2,7 @@ package parser
 
 import (
 	"golox/internal/scanner"
+	"golox/pkg/common"
 )
 
 type ParseFn func(canAssign bool)
@@ -36,7 +37,7 @@ func (p *Parser) InitParserRules() {
 		scanner.TOKEN_IDENTIFIER:    {p.variable, nil, PREC_NONE},
 		scanner.TOKEN_STRING:        {p.string, nil, PREC_NONE},
 		scanner.TOKEN_NUMBER:        {p.number, nil, PREC_NONE},
-		scanner.TOKEN_AND:           {nil, nil, PREC_NONE},
+		scanner.TOKEN_AND:           {nil, p.and, PREC_NONE},
 		scanner.TOKEN_CLASS:         {nil, nil, PREC_NONE},
 		scanner.TOKEN_ELSE:          {nil, nil, PREC_NONE},
 		scanner.TOKEN_FALSE:         {p.literal, nil, PREC_NONE},
@@ -44,7 +45,7 @@ func (p *Parser) InitParserRules() {
 		scanner.TOKEN_FUN:           {nil, nil, PREC_NONE},
 		scanner.TOKEN_IF:            {nil, nil, PREC_NONE},
 		scanner.TOKEN_NIL:           {p.literal, nil, PREC_NONE},
-		scanner.TOKEN_OR:            {nil, nil, PREC_NONE},
+		scanner.TOKEN_OR:            {nil, p.or, PREC_NONE},
 		scanner.TOKEN_PRINT:         {nil, nil, PREC_NONE},
 		scanner.TOKEN_RETURN:        {nil, nil, PREC_NONE},
 		scanner.TOKEN_SUPER:         {nil, nil, PREC_NONE},
@@ -55,4 +56,24 @@ func (p *Parser) InitParserRules() {
 		scanner.TOKEN_ERROR:         {nil, nil, PREC_NONE},
 		scanner.TOKEN_EOF:           {nil, nil, PREC_NONE},
 	}
+}
+
+func (p *Parser) and(canAssign bool) {
+	endJump := p.EmitJump(byte(common.OpJumpIfFalse))
+
+	p.EmitByte(byte(common.OpPop))
+	p.parsePrecedence(PREC_AND)
+
+	p.patchJump(endJump)
+}
+
+func (p *Parser) or(canAssign bool) {
+	elseJump := p.EmitJump(byte(common.OpJumpIfFalse))
+	endJump := p.EmitJump(byte(common.OpJump))
+
+	p.patchJump(elseJump)
+	p.EmitByte(byte(common.OpPop))
+
+	p.parsePrecedence(PREC_OR)
+	p.patchJump(endJump)
 }

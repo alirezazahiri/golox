@@ -1,7 +1,16 @@
-{
-    if (0) {
-        print "passed";
-    } else {
-        print "not passed";
-    }
+var n = 20;
+var fac = 1;
+
+for (i = 1; i < n; i = i + 1) {
+    fac = fac * i; 
+}
+
+print fac;
+
+var last = n-1;
+
+while (last > 1) {
+    fac = fac / last;
+    last = last - 1;
+    print fac;  
 }

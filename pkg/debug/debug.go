@@ -84,7 +84,9 @@ func DisassembleInstruction(c *chunk.Chunk, offset int) int {
 		return jumpInstruction("OP_JUMP", 1, c, offset)
 	case byte(common.OpJumpIfFalse):
 		return jumpInstruction("OP_JUMP_IF_FALSE", 1, c, offset)
-
+	case byte(common.OpLoop):
+		return jumpInstruction("OP_LOOP", -1, c, offset)
+	
 	default:
 		fmt.Printf("Unknown opcode %d\n", instruction)
 		return offset + 1
@@ -117,7 +119,7 @@ func constantLongInstruction(name string, c *chunk.Chunk, offset int) int {
 }
 
 func jumpInstruction(name string, sign int, c *chunk.Chunk, offset int) int {
-	jump := uint16(c.Code[offset+1] << 8)
+	jump := uint16(c.Code[offset+1]) << 8
 	jump |= uint16(c.Code[offset+2])
 
 	fmt.Printf("%-16s %4d -> %d\n", name, offset, offset+3+sign*int(jump))

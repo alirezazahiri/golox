@@ -28,7 +28,7 @@ func (p *Parser) varDeclaration() {
 	} else {
 		p.EmitByte(byte(common.OpNil))
 	}
-
+	
 	p.Consume(scanner.TOKEN_SEMICOLON, errors.ExpectSemicolonAfterVarDeclaration)
 	p.defineVariable(global)
 }
@@ -36,8 +36,12 @@ func (p *Parser) varDeclaration() {
 func (p *Parser) statement() {
 	if p.Match(scanner.TOKEN_PRINT) {
 		p.printStatement()
+	} else if p.Match(scanner.TOKEN_FOR) {
+		p.forStatement()
 	} else if p.Match(scanner.TOKEN_IF) {
 		p.ifStatement()
+	} else if p.Match(scanner.TOKEN_WHILE) {
+		p.whileStatement()
 	} else if p.Match(scanner.TOKEN_LEFT_BRACE) {
 		p.beginScope()
 		p.block()
@@ -45,6 +49,73 @@ func (p *Parser) statement() {
 	} else {
 		p.expressionStatement()
 	}
+}
+
+func (p *Parser) forStatement() {
+	p.beginScope()
+
+	p.Consume(scanner.TOKEN_LEFT_PAREN, errors.ExpectLeftParenAfterFor)
+
+	if p.Match(scanner.TOKEN_SEMICOLON) {
+		// no initializer
+	} else if p.Match(scanner.TOKEN_VAR) {
+		p.varDeclaration()
+	} else {
+		p.expressionStatement()
+	}
+
+	loopStart := len(p.chunk.Code)
+
+	exitJump := -1
+	if !p.Match(scanner.TOKEN_SEMICOLON) {
+		p.expression()
+		p.Consume(scanner.TOKEN_SEMICOLON, errors.ExpectSemicolonAfterLoopCond)
+
+		exitJump = p.EmitJump(byte(common.OpJumpIfFalse))
+		p.EmitByte(byte(common.OpPop))
+	}
+
+	if !p.Match(scanner.TOKEN_RIGHT_PAREN) {
+		bodyJump := p.EmitJump(byte(common.OpJump))
+
+		incrementStart := len(p.chunk.Code)
+		p.expression()
+		p.EmitByte(byte(common.OpPop))
+		p.Consume(scanner.TOKEN_RIGHT_PAREN, errors.ExpectRightParenAfterForClauses)
+
+		p.EmitLoop(loopStart)
+		loopStart = incrementStart
+		p.patchJump(bodyJump)
+	}
+
+	p.statement()
+
+	p.EmitLoop(loopStart)
+
+	if exitJump != -1 {
+		p.patchJump(exitJump)
+		p.EmitByte(byte(common.OpPop))
+	}
+
+	p.endScope()
+}
+
+func (p *Parser) whileStatement() {
+	loopStart := len(p.chunk.Code)
+
+	p.Consume(scanner.TOKEN_LEFT_PAREN, errors.ExpectLeftParenAfterWhile)
+	p.expression()
+	p.Consume(scanner.TOKEN_RIGHT_PAREN, errors.ExpectRightParenAfterCond)
+
+	exitJump := p.EmitJump(byte(common.OpJumpIfFalse))
+
+	p.EmitByte(byte(common.OpPop))
+	p.statement()
+
+	p.EmitLoop(loopStart)
+
+	p.patchJump(exitJump)
+	p.EmitByte(byte(common.OpPop))
 }
 
 func (p *Parser) beginScope() {
@@ -85,9 +156,9 @@ func (p *Parser) ifStatement() {
 	thenJump := p.EmitJump(byte(common.OpJumpIfFalse))
 	p.EmitByte(byte(common.OpPop))
 	p.statement()
-	
+
 	elseJump := p.EmitJump(byte(common.OpJump))
-	
+
 	p.patchJump(thenJump)
 	p.EmitByte(byte(common.OpPop))
 
@@ -102,7 +173,7 @@ func (p *Parser) patchJump(offset int) {
 	jump := len(p.chunk.Code) - offset - 2
 
 	if jump > math.MaxUint16 {
-		p.error("too much code to jump over")
+		p.error(errors.TooMuchCodeToJumpOver)
 	}
 
 	p.chunk.Code[offset] = byte((jump >> 8) & 0xff)
