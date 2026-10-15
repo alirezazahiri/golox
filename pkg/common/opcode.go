@@ -21,7 +21,7 @@ const (
 	OpLoop
 	OpBang
 	OpFalse
-	OpTrue 
+	OpTrue
 	OpNil
 	OpDefineGlobal
 	OpGetGlobal

@@ -45,8 +45,6 @@ func (p *Parser) declareVariable() {
 	p.compiler.addLocal(name)
 }
 
-
-
 func (p *Parser) variable(canAssign bool) {
 	p.namedVariable(p.Previous, canAssign)
 }

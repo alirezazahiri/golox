@@ -20,9 +20,9 @@ type Parser struct {
 
 func New(s *scanner.Scanner, c *chunk.Chunk, v *vm.VM) *Parser {
 	p := &Parser{
-		scanner: s,
-		chunk:   c,
-		vm:      v,
+		scanner:  s,
+		chunk:    c,
+		vm:       v,
 		compiler: NewCompiler(),
 	}
 	p.InitParserRules()

@@ -26,10 +26,10 @@ func (p *Parser) parsePrecedence(prec Precedence) {
 		p.error(errors.ExpectExpression)
 		return
 	}
-	
+
 	canAssign := prec <= PREC_ASSIGNMENT
 	prefixRule(canAssign)
-	
+
 	for prec <= p.getRule(p.Current.Type).Precedence {
 		p.Advance()
 		infixRule := p.getRule(p.Previous.Type).Infix

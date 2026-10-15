@@ -28,7 +28,7 @@ func (p *Parser) varDeclaration() {
 	} else {
 		p.EmitByte(byte(common.OpNil))
 	}
-	
+
 	p.Consume(scanner.TOKEN_SEMICOLON, errors.ExpectSemicolonAfterVarDeclaration)
 	p.defineVariable(global)
 }

@@ -9,7 +9,7 @@ import (
 
 func (v *VM) PrintValue() InterpretResult {
 	var value common.Value
-	
+
 	if v.DebugMode {
 		value = v.Stack.GetAt(-1)
 	} else {
