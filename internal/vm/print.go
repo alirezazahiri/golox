@@ -3,12 +3,12 @@ package vm
 import (
 	"fmt"
 
-	"golox/pkg/common"
 	"golox/pkg/debug"
+	vmval "golox/pkg/vm"
 )
 
 func (v *VM) PrintValue() InterpretResult {
-	var value common.Value
+	var value vmval.Value
 
 	if v.DebugMode {
 		value = v.Stack.GetAt(-1)

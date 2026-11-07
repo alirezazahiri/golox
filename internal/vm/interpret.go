@@ -2,10 +2,12 @@ package vm
 
 import (
 	"fmt"
-	"golox/internal/chunk"
+
+	"golox/pkg/bytecode"
 	"golox/pkg/common"
 	"golox/pkg/debug"
 	"golox/pkg/errors"
+	vmval "golox/pkg/vm"
 )
 
 type InterpretResult byte
@@ -16,7 +18,7 @@ const (
 	InterpretRuntimeError
 )
 
-func (v *VM) Interpret(chunk *chunk.Chunk) InterpretResult {
+func (v *VM) Interpret(chunk *bytecode.Chunk) InterpretResult {
 	v.WriteChunk(chunk)
 	v.IP = 0
 	return v.Run()
@@ -80,13 +82,13 @@ func (v *VM) Run() InterpretResult {
 			result = v.UnaryOperation('!')
 			break
 		case byte(common.OpNil):
-			v.Stack.Push(common.NilValue())
+			v.Stack.Push(vmval.NilValue())
 			break
 		case byte(common.OpFalse):
-			v.Stack.Push(common.BoolValue(false))
+			v.Stack.Push(vmval.BoolValue(false))
 			break
 		case byte(common.OpTrue):
-			v.Stack.Push(common.BoolValue(true))
+			v.Stack.Push(vmval.BoolValue(true))
 			break
 		case byte(common.OpDefineGlobal):
 			name, err := v.ReadString()

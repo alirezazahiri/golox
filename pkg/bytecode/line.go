@@ -1,4 +1,4 @@
-package chunk
+package bytecode
 
 type LineStart struct {
 	Line  int

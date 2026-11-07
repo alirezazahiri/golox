@@ -1,15 +1,15 @@
 package interpreter
 
 import (
-	"golox/internal/chunk"
 	"golox/internal/parser"
 	"golox/internal/scanner"
 	"golox/internal/vm"
+	"golox/pkg/bytecode"
 	"golox/pkg/debug"
 )
 
 func Interpret(v *vm.VM, source string) vm.InterpretResult {
-	c := chunk.New()
+	c := bytecode.NewChunk()
 
 	if !compile(source, c, v) {
 		c.Free()
@@ -22,7 +22,7 @@ func Interpret(v *vm.VM, source string) vm.InterpretResult {
 	return result
 }
 
-func compile(source string, c *chunk.Chunk, v *vm.VM) bool {
+func compile(source string, c *bytecode.Chunk, v *vm.VM) bool {
 	s := scanner.New(source)
 	p := parser.New(s, c, v)
 

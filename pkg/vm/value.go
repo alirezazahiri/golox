@@ -1,4 +1,6 @@
-package common
+package vm
+
+import "golox/pkg/common"
 
 type ValueType byte
 
@@ -25,7 +27,7 @@ func (t ValueType) String() string {
 type Union struct {
 	Bool   bool
 	Number float64
-	Obj    Obj
+	Obj    common.Obj
 }
 
 type Value struct {
@@ -62,6 +64,15 @@ func NumberValue(value float64) Value {
 	}
 }
 
+func ObjValue(obj common.Obj) Value {
+	return Value{
+		Type: ValObj,
+		As: Union{
+			Obj: obj,
+		},
+	}
+}
+
 func (v Value) IsBool() bool {
 	return v.Type == ValBool
 }
@@ -73,26 +84,4 @@ func (v Value) IsNumber() bool {
 }
 func (v Value) IsFalsey() bool {
 	return v.IsNil() || (v.IsBool() && !v.As.Bool) || (v.IsNumber() && v.As.Number == 0) || (v.IsString() && v.AsString().Content == "")
-}
-
-type ValueArray struct {
-	Values []Value
-}
-
-func NewValueArray() *ValueArray {
-	return &ValueArray{
-		Values: make([]Value, 0, 8),
-	}
-}
-
-func (v *ValueArray) Write(value Value) {
-	v.Values = append(v.Values, value)
-}
-
-func (v *ValueArray) Free() {
-	v.Values = nil
-}
-
-func (v *ValueArray) Size() int {
-	return len(v.Values)
 }

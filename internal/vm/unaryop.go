@@ -1,8 +1,8 @@
 package vm
 
 import (
-	"golox/pkg/common"
 	"golox/pkg/errors"
+	vmval "golox/pkg/vm"
 )
 
 // UnaryOperation handles unery operations like negation (-) or not (!)
@@ -13,11 +13,9 @@ func (v *VM) UnaryOperation(op rune) InterpretResult {
 			v.runtimeError(errors.OperandMustBeNumber)
 			return InterpretRuntimeError
 		}
-		v.Stack.UpdateTop(func(v common.Value) common.Value { return common.NumberValue(-v.As.Number) })
-		break
+		v.Stack.UpdateTop(func(v vmval.Value) vmval.Value { return vmval.NumberValue(-v.As.Number) })
 	case '!':
-		v.Stack.UpdateTop(func(v common.Value) common.Value { return common.BoolValue(!v.As.Bool) })
-		break
+		v.Stack.UpdateTop(func(v vmval.Value) vmval.Value { return vmval.BoolValue(!v.As.Bool) })
 	}
 
 	return InterpretOk

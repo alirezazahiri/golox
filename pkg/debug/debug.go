@@ -2,11 +2,13 @@ package debug
 
 import (
 	"fmt"
-	"golox/internal/chunk"
+
+	"golox/pkg/bytecode"
 	"golox/pkg/common"
+	"golox/pkg/vm"
 )
 
-func DisassembleChunk(c *chunk.Chunk, name string) {
+func DisassembleChunk(c *bytecode.Chunk, name string) {
 	fmt.Printf("== %s ==\n", name)
 
 	for offset := 0; offset < len(c.Code); {
@@ -14,7 +16,7 @@ func DisassembleChunk(c *chunk.Chunk, name string) {
 	}
 }
 
-func DisassembleInstruction(c *chunk.Chunk, offset int) int {
+func DisassembleInstruction(c *bytecode.Chunk, offset int) int {
 	fmt.Printf("%04d ", offset)
 
 	line := c.GetLine(offset)
@@ -98,13 +100,13 @@ func simpleInstruction(name string, offset int) int {
 	return offset + 1
 }
 
-func constantInstruction(name string, chunk *chunk.Chunk, offset int) int {
+func constantInstruction(name string, chunk *bytecode.Chunk, offset int) int {
 	constant := chunk.Code[offset+1]
 	fmt.Printf("%-16s %4d '%s'\n", name, constant, PrintValue(chunk.Constants.Values[constant]))
 	return offset + 2
 }
 
-func constantLongInstruction(name string, c *chunk.Chunk, offset int) int {
+func constantLongInstruction(name string, c *bytecode.Chunk, offset int) int {
 	b1 := int(c.Code[offset+1])
 	b2 := int(c.Code[offset+2])
 	b3 := int(c.Code[offset+3])
@@ -118,7 +120,7 @@ func constantLongInstruction(name string, c *chunk.Chunk, offset int) int {
 	return offset + 4
 }
 
-func jumpInstruction(name string, sign int, c *chunk.Chunk, offset int) int {
+func jumpInstruction(name string, sign int, c *bytecode.Chunk, offset int) int {
 	jump := uint16(c.Code[offset+1]) << 8
 	jump |= uint16(c.Code[offset+2])
 
@@ -126,13 +128,18 @@ func jumpInstruction(name string, sign int, c *chunk.Chunk, offset int) int {
 	return offset + 3
 }
 
-func PrintValue(value common.Value) string {
+func PrintValue(value vm.Value) string {
 	if value.IsNil() {
 		return "nil"
 	} else if value.IsBool() {
 		return fmt.Sprintf("%v", value.As.Bool)
 	} else if value.IsString() {
 		return fmt.Sprintf("%s", value.AsString().Content)
+	} else if value.IsFunction() {
+		if fn := value.AsFunction(); fn.Name != nil {
+			return fmt.Sprintf("<fn %s>", fn.Name.Content)
+		}
+		return "<fn>"
 	}
 	return fmt.Sprintf("%v", value.As.Number)
 }

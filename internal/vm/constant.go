@@ -2,32 +2,34 @@ package vm
 
 import (
 	"fmt"
+
 	"golox/pkg/common"
 	"golox/pkg/debug"
+	vmval "golox/pkg/vm"
 )
 
-func (v *VM) ReadConstant() (common.Value, error) {
+func (v *VM) ReadConstant() (vmval.Value, error) {
 	i, err := v.ReadByte()
 	if err != nil {
-		return common.NilValue(), err
+		return vmval.NilValue(), err
 	}
 	return v.Chunk.Constants.Values[i], nil
 }
 
-func (v *VM) ReadConstantLong() (common.Value, error) {
+func (v *VM) ReadConstantLong() (vmval.Value, error) {
 	b1, err := v.ReadByte()
 	if err != nil {
-		return common.NilValue(), err
+		return vmval.NilValue(), err
 	}
 
 	b2, err := v.ReadByte()
 	if err != nil {
-		return common.NilValue(), err
+		return vmval.NilValue(), err
 	}
 
 	b3, err := v.ReadByte()
 	if err != nil {
-		return common.NilValue(), err
+		return vmval.NilValue(), err
 	}
 
 	index := (int(b1) << 16) | (int(b2) << 8) | int(b3)
@@ -36,16 +38,14 @@ func (v *VM) ReadConstantLong() (common.Value, error) {
 }
 
 func (v *VM) ConstantOperation(op byte) InterpretResult {
-	var c common.Value
+	var c vmval.Value
 	var err error
 
 	switch op {
 	case byte(common.OpConstant):
 		c, err = v.ReadConstant()
-		break
 	case byte(common.OpConstantLong):
 		c, err = v.ReadConstantLong()
-		break
 	}
 
 	if err != nil {

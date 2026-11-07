@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"golox/internal/chunk"
 	"golox/internal/scanner"
 	"golox/internal/vm"
+	"golox/pkg/bytecode"
 )
 
 type Parser struct {
@@ -12,13 +12,13 @@ type Parser struct {
 	HadError  bool
 	PanicMode bool
 	scanner   *scanner.Scanner
-	chunk     *chunk.Chunk
+	chunk     *bytecode.Chunk
 	vm        *vm.VM
 	rules     map[scanner.TokenType]ParseRule
 	compiler  *Compiler
 }
 
-func New(s *scanner.Scanner, c *chunk.Chunk, v *vm.VM) *Parser {
+func New(s *scanner.Scanner, c *bytecode.Chunk, v *vm.VM) *Parser {
 	p := &Parser{
 		scanner:  s,
 		chunk:    c,

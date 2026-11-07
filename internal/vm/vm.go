@@ -1,19 +1,20 @@
 package vm
 
 import (
-	"golox/internal/chunk"
+	"golox/pkg/bytecode"
 	"golox/pkg/common"
 	"golox/pkg/ds"
 	"golox/pkg/table"
+	vmval "golox/pkg/vm"
 )
 
 type VM struct {
-	Chunk *chunk.Chunk
+	Chunk *bytecode.Chunk
 
 	// Instruction Pointer
 	IP int
 
-	Stack *ds.Stack[common.Value]
+	Stack *ds.Stack[vmval.Value]
 
 	Strings *table.Table
 	Globals *table.Table
@@ -24,7 +25,7 @@ type VM struct {
 func New() *VM {
 	return &VM{
 		Chunk:     nil,
-		Stack:     ds.NewStack[common.Value](),
+		Stack:     ds.NewStack[vmval.Value](),
 		DebugMode: false,
 		Strings:   table.New(),
 		Globals:   table.New(),
@@ -43,11 +44,11 @@ func (vm *VM) InternString(chars string) *common.ObjString {
 		Hash:    hash,
 	}
 
-	vm.Strings.Set(str, common.NilValue())
+	vm.Strings.Set(str, vmval.NilValue())
 	return str
 }
 
-func (v *VM) WriteChunk(c *chunk.Chunk) {
+func (v *VM) WriteChunk(c *bytecode.Chunk) {
 	v.Chunk = c
 }
 

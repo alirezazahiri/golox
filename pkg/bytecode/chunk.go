@@ -1,17 +1,17 @@
-package chunk
+package bytecode
 
-import "golox/pkg/common"
+import "golox/pkg/vm"
 
 type Chunk struct {
 	Code      []byte
-	Constants *common.ValueArray
+	Constants *ValueArray
 	Lines     []LineStart
 }
 
-func New() *Chunk {
+func NewChunk() *Chunk {
 	return &Chunk{
 		Code:      make([]byte, 0, 8),
-		Constants: common.NewValueArray(),
+		Constants: NewValueArray(),
 		Lines:     make([]LineStart, 0, 8),
 	}
 }
@@ -29,7 +29,7 @@ func (c *Chunk) Write(code byte, line int) {
 	}
 }
 
-func (c *Chunk) AddConstant(constant common.Value) int {
+func (c *Chunk) AddConstant(constant vm.Value) int {
 	c.Constants.Write(constant)
 	return c.Constants.Size() - 1
 }
