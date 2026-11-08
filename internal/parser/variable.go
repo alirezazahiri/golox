@@ -9,7 +9,7 @@ import (
 func (p *Parser) parseVariable(errorMessage string) uint8 {
 	p.Consume(scanner.TOKEN_IDENTIFIER, errorMessage)
 	p.declareVariable()
-	if p.compiler.ScopeDepth > 0 {
+	if p.Compiler.ScopeDepth > 0 {
 		return 0
 	}
 	return p.identifierConstant(&p.Previous)
@@ -21,28 +21,28 @@ func (p *Parser) identifierConstant(token *scanner.Token) uint8 {
 }
 
 func (p *Parser) defineVariable(name uint8) {
-	if p.compiler.ScopeDepth > 0 {
-		p.compiler.markInitialized()
+	if p.Compiler.ScopeDepth > 0 {
+		p.Compiler.markInitialized()
 		return
 	}
 	p.EmitBytes(byte(common.OpDefineGlobal), name)
 }
 
 func (p *Parser) declareVariable() {
-	if p.compiler.ScopeDepth == 0 {
+	if p.Compiler.ScopeDepth == 0 {
 		return
 	}
 	name := p.Previous
-	for i := p.compiler.LocalCount - 1; i >= 0; i-- {
-		local := p.compiler.Locals[i]
-		if local.Depth != -1 && local.Depth < p.compiler.ScopeDepth {
+	for i := p.Compiler.LocalCount - 1; i >= 0; i-- {
+		local := p.Compiler.Locals[i]
+		if local.Depth != -1 && local.Depth < p.Compiler.ScopeDepth {
 			break
 		}
 		if identifiersEqual(&name, &local.Name) {
 			p.error(errors.AlreadyVariableWithThisNameInThisScope)
 		}
 	}
-	p.compiler.addLocal(name)
+	p.Compiler.addLocal(name)
 }
 
 func (p *Parser) variable(canAssign bool) {
@@ -54,7 +54,7 @@ func (p *Parser) namedVariable(name scanner.Token, canAssign bool) {
 	var getOp uint8
 	var setOp uint8
 
-	if local, ok := p.compiler.resolveLocal(name); ok {
+	if local, ok := p.Compiler.resolveLocal(name); ok {
 		arg = uint8(local)
 		getOp = uint8(common.OpGetLocal)
 		setOp = uint8(common.OpSetLocal)

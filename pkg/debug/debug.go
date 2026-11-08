@@ -138,7 +138,7 @@ func PrintValue(value common.Value) string {
 		if fn := bytecode.AsFunction(value); fn.Name != nil {
 			return fmt.Sprintf("<fn %s>", fn.Name.Content)
 		}
-		return "<fn>"
+		return "<script>"
 	}
 	return fmt.Sprintf("%v", value.As.Number)
 }

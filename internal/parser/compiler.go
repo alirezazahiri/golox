@@ -24,17 +24,23 @@ type Local struct {
 
 type Compiler struct {
 	Function   *bytecode.Function
-	FnType     FunctionType
+	Type       FunctionType
 	Locals     [uInt8Count]*Local
 	LocalCount int
 	ScopeDepth int
 }
 
-func NewCompiler() *Compiler {
-	return &Compiler{
+func NewCompiler(ty FunctionType) *Compiler {
+	current := &Compiler{
 		LocalCount: 0,
 		ScopeDepth: 0,
+		Function:   bytecode.NewFunction(),
+		Type:       ty,
 	}
+	current.Locals[current.LocalCount] = &Local{Depth: 0}
+	current.LocalCount++
+
+	return current
 }
 
 func (c *Compiler) addLocal(name scanner.Token) {

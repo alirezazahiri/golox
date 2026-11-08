@@ -10,8 +10,9 @@ import (
 
 func Interpret(v *vm.VM, source string) vm.InterpretResult {
 	c := bytecode.NewChunk()
+	function := compile(source, c, v)
 
-	if !compile(source, c, v) {
+	if function == nil {
 		c.Free()
 		return vm.InterpretCompileError
 	}
@@ -22,7 +23,7 @@ func Interpret(v *vm.VM, source string) vm.InterpretResult {
 	return result
 }
 
-func compile(source string, c *bytecode.Chunk, v *vm.VM) bool {
+func compile(source string, c *bytecode.Chunk, v *vm.VM) *bytecode.Function {
 	s := scanner.New(source)
 	p := parser.New(s, c, v)
 
@@ -33,10 +34,17 @@ func compile(source string, c *bytecode.Chunk, v *vm.VM) bool {
 	}
 
 	p.EmitReturn()
+	function := p.Compiler.Function
 
 	if !p.HadError {
-		debug.DisassembleChunk(c, "code")
+		var name string
+		if function.Name != nil && function.Name.Length != 0 {
+			name = function.Name.Content
+		} else {
+			name = "<script>"
+		}
+		debug.DisassembleChunk(c, name)
 	}
 
-	return !p.HadError
+	return function
 }

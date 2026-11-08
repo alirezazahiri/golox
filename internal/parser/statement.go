@@ -119,7 +119,7 @@ func (p *Parser) whileStatement() {
 }
 
 func (p *Parser) beginScope() {
-	p.compiler.ScopeDepth++
+	p.Compiler.ScopeDepth++
 }
 
 func (p *Parser) block() {
@@ -131,14 +131,14 @@ func (p *Parser) block() {
 }
 
 func (p *Parser) endScope() {
-	p.compiler.ScopeDepth--
+	p.Compiler.ScopeDepth--
 
-	for p.compiler.LocalCount > 0 &&
-		p.compiler.Locals[p.compiler.LocalCount-1].Depth > p.compiler.ScopeDepth {
-		if p.compiler.Locals[p.compiler.LocalCount-1].Depth != -1 {
+	for p.Compiler.LocalCount > 0 &&
+		p.Compiler.Locals[p.Compiler.LocalCount-1].Depth > p.Compiler.ScopeDepth {
+		if p.Compiler.Locals[p.Compiler.LocalCount-1].Depth != -1 {
 			p.EmitByte(byte(common.OpPop))
 		}
-		p.compiler.LocalCount--
+		p.Compiler.LocalCount--
 	}
 }
 
