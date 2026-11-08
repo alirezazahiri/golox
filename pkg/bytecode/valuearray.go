@@ -1,18 +1,18 @@
 package bytecode
 
-import "golox/pkg/vm"
+import "golox/pkg/common"
 
 type ValueArray struct {
-	Values []vm.Value
+	Values []common.Value
 }
 
 func NewValueArray() *ValueArray {
 	return &ValueArray{
-		Values: make([]vm.Value, 0, 8),
+		Values: make([]common.Value, 0, 8),
 	}
 }
 
-func (v *ValueArray) Write(value vm.Value) {
+func (v *ValueArray) Write(value common.Value) {
 	v.Values = append(v.Values, value)
 }
 

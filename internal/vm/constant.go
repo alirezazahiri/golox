@@ -5,31 +5,30 @@ import (
 
 	"golox/pkg/common"
 	"golox/pkg/debug"
-	vmval "golox/pkg/vm"
 )
 
-func (v *VM) ReadConstant() (vmval.Value, error) {
+func (v *VM) ReadConstant() (common.Value, error) {
 	i, err := v.ReadByte()
 	if err != nil {
-		return vmval.NilValue(), err
+		return common.NilValue(), err
 	}
 	return v.Chunk.Constants.Values[i], nil
 }
 
-func (v *VM) ReadConstantLong() (vmval.Value, error) {
+func (v *VM) ReadConstantLong() (common.Value, error) {
 	b1, err := v.ReadByte()
 	if err != nil {
-		return vmval.NilValue(), err
+		return common.NilValue(), err
 	}
 
 	b2, err := v.ReadByte()
 	if err != nil {
-		return vmval.NilValue(), err
+		return common.NilValue(), err
 	}
 
 	b3, err := v.ReadByte()
 	if err != nil {
-		return vmval.NilValue(), err
+		return common.NilValue(), err
 	}
 
 	index := (int(b1) << 16) | (int(b2) << 8) | int(b3)
@@ -38,7 +37,7 @@ func (v *VM) ReadConstantLong() (vmval.Value, error) {
 }
 
 func (v *VM) ConstantOperation(op byte) InterpretResult {
-	var c vmval.Value
+	var c common.Value
 	var err error
 
 	switch op {

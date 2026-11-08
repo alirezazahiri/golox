@@ -1,13 +1,10 @@
 package table
 
-import (
-	"golox/pkg/common"
-	"golox/pkg/vm"
-)
+import "golox/pkg/common"
 
 type Entry struct {
 	Key   *common.ObjString
-	Value vm.Value
+	Value common.Value
 }
 
 type Table struct {
@@ -20,7 +17,7 @@ func New() *Table {
 	return &Table{}
 }
 
-func (t *Table) Set(key *common.ObjString, value vm.Value) bool {
+func (t *Table) Set(key *common.ObjString, value common.Value) bool {
 	if float64(t.Count+1) > float64(t.Capacity)*tableMaxLoad {
 		capacity := growCapacity(t.Capacity)
 		t.adjustCapacity(capacity)
@@ -39,7 +36,7 @@ func (t *Table) Set(key *common.ObjString, value vm.Value) bool {
 	return isNewKey
 }
 
-func (t *Table) Get(key *common.ObjString) (value vm.Value, found bool) {
+func (t *Table) Get(key *common.ObjString) (value common.Value, found bool) {
 	if t.Count == 0 {
 		return
 	}
@@ -64,7 +61,7 @@ func (t *Table) Delete(key *common.ObjString) bool {
 	}
 
 	e.Key = nil
-	e.Value = vm.BoolValue(true)
+	e.Value = common.BoolValue(true)
 
 	return true
 }

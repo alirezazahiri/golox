@@ -5,7 +5,6 @@ import (
 	"golox/pkg/common"
 	"golox/pkg/ds"
 	"golox/pkg/table"
-	vmval "golox/pkg/vm"
 )
 
 type VM struct {
@@ -14,7 +13,7 @@ type VM struct {
 	// Instruction Pointer
 	IP int
 
-	Stack *ds.Stack[vmval.Value]
+	Stack *ds.Stack[common.Value]
 
 	Strings *table.Table
 	Globals *table.Table
@@ -25,7 +24,7 @@ type VM struct {
 func New() *VM {
 	return &VM{
 		Chunk:     nil,
-		Stack:     ds.NewStack[vmval.Value](),
+		Stack:     ds.NewStack[common.Value](),
 		DebugMode: false,
 		Strings:   table.New(),
 		Globals:   table.New(),
@@ -44,7 +43,7 @@ func (vm *VM) InternString(chars string) *common.ObjString {
 		Hash:    hash,
 	}
 
-	vm.Strings.Set(str, vmval.NilValue())
+	vm.Strings.Set(str, common.NilValue())
 	return str
 }
 

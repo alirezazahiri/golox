@@ -5,7 +5,6 @@ import (
 
 	"golox/pkg/common"
 	"golox/pkg/errors"
-	"golox/pkg/vm"
 )
 
 func (p *Parser) EmitBytes(bs ...byte) {
@@ -22,7 +21,7 @@ func (p *Parser) EmitReturn() {
 	p.EmitByte(byte(common.OpReturn))
 }
 
-func (p *Parser) EmitConstant(value vm.Value) {
+func (p *Parser) EmitConstant(value common.Value) {
 	constant := p.chunk.AddConstant(value)
 
 	if constant <= 0xff {

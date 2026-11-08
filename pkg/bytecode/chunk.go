@@ -1,6 +1,6 @@
 package bytecode
 
-import "golox/pkg/vm"
+import "golox/pkg/common"
 
 type Chunk struct {
 	Code      []byte
@@ -29,7 +29,7 @@ func (c *Chunk) Write(code byte, line int) {
 	}
 }
 
-func (c *Chunk) AddConstant(constant vm.Value) int {
+func (c *Chunk) AddConstant(constant common.Value) int {
 	c.Constants.Write(constant)
 	return c.Constants.Size() - 1
 }

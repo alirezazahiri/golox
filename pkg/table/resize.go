@@ -1,6 +1,6 @@
 package table
 
-import "golox/pkg/vm"
+import "golox/pkg/common"
 
 const tableMaxLoad = 0.75
 
@@ -8,7 +8,7 @@ func (t *Table) adjustCapacity(capacity int) {
 	entries := make([]Entry, capacity)
 	for i := range capacity {
 		entries[i].Key = nil
-		entries[i].Value = vm.NilValue()
+		entries[i].Value = common.NilValue()
 	}
 
 	t.Count = 0

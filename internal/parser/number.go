@@ -3,7 +3,7 @@ package parser
 import (
 	"strconv"
 
-	"golox/pkg/vm"
+	"golox/pkg/common"
 )
 
 func (p *Parser) number(canAssign bool) {
@@ -11,5 +11,5 @@ func (p *Parser) number(canAssign bool) {
 	if err != nil {
 		return
 	}
-	p.EmitConstant(vm.NumberValue(value))
+	p.EmitConstant(common.NumberValue(value))
 }

@@ -4,7 +4,15 @@ import (
 	"fmt"
 
 	"golox/internal/scanner"
+	"golox/pkg/bytecode"
 	"golox/pkg/errors"
+)
+
+type FunctionType = byte
+
+const (
+	TypeFunction FunctionType = iota + 1
+	TypeScript
 )
 
 const uInt8Count int = 256
@@ -15,6 +23,8 @@ type Local struct {
 }
 
 type Compiler struct {
+	Function   *bytecode.Function
+	FnType     FunctionType
 	Locals     [uInt8Count]*Local
 	LocalCount int
 	ScopeDepth int

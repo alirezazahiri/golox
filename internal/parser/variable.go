@@ -4,7 +4,6 @@ import (
 	"golox/internal/scanner"
 	"golox/pkg/common"
 	"golox/pkg/errors"
-	"golox/pkg/vm"
 )
 
 func (p *Parser) parseVariable(errorMessage string) uint8 {
@@ -18,7 +17,7 @@ func (p *Parser) parseVariable(errorMessage string) uint8 {
 
 func (p *Parser) identifierConstant(token *scanner.Token) uint8 {
 	str := p.vm.InternString(token.Lexeme)
-	return uint8(p.chunk.AddConstant(vm.StringObjValue(str)))
+	return uint8(p.chunk.AddConstant(common.StringObjValue(str)))
 }
 
 func (p *Parser) defineVariable(name uint8) {

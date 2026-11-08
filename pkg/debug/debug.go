@@ -5,7 +5,6 @@ import (
 
 	"golox/pkg/bytecode"
 	"golox/pkg/common"
-	"golox/pkg/vm"
 )
 
 func DisassembleChunk(c *bytecode.Chunk, name string) {
@@ -128,15 +127,15 @@ func jumpInstruction(name string, sign int, c *bytecode.Chunk, offset int) int {
 	return offset + 3
 }
 
-func PrintValue(value vm.Value) string {
+func PrintValue(value common.Value) string {
 	if value.IsNil() {
 		return "nil"
 	} else if value.IsBool() {
 		return fmt.Sprintf("%v", value.As.Bool)
 	} else if value.IsString() {
-		return fmt.Sprintf("%s", value.AsString().Content)
+		return value.AsString().Content
 	} else if value.IsFunction() {
-		if fn := value.AsFunction(); fn.Name != nil {
+		if fn := bytecode.AsFunction(value); fn.Name != nil {
 			return fmt.Sprintf("<fn %s>", fn.Name.Content)
 		}
 		return "<fn>"

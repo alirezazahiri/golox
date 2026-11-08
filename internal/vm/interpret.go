@@ -7,7 +7,6 @@ import (
 	"golox/pkg/common"
 	"golox/pkg/debug"
 	"golox/pkg/errors"
-	vmval "golox/pkg/vm"
 )
 
 type InterpretResult byte
@@ -82,13 +81,13 @@ func (v *VM) Run() InterpretResult {
 			result = v.UnaryOperation('!')
 			break
 		case byte(common.OpNil):
-			v.Stack.Push(vmval.NilValue())
+			v.Stack.Push(common.NilValue())
 			break
 		case byte(common.OpFalse):
-			v.Stack.Push(vmval.BoolValue(false))
+			v.Stack.Push(common.BoolValue(false))
 			break
 		case byte(common.OpTrue):
-			v.Stack.Push(vmval.BoolValue(true))
+			v.Stack.Push(common.BoolValue(true))
 			break
 		case byte(common.OpDefineGlobal):
 			name, err := v.ReadString()

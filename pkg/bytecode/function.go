@@ -2,19 +2,28 @@ package bytecode
 
 import "golox/pkg/common"
 
-func NewFunctionObject() *common.ObjFunction {
-	fn := common.NewFunction()
-	fn.Chunk = NewChunk()
-	return fn
+type Function struct {
+	Arity int
+	Chunk *Chunk
+	Name  *common.ObjString
 }
 
-func FunctionChunk(fn *common.ObjFunction) *Chunk {
-	if fn == nil || fn.Chunk == nil {
-		return nil
+func (f *Function) Type() common.ObjType {
+	return common.ObjFunctionType
+}
+
+func NewFunction() *Function {
+	return &Function{
+		Arity: 0,
+		Name:  nil,
+		Chunk: NewChunk(),
 	}
-	return fn.Chunk.(*Chunk)
 }
 
-func SetFunctionChunk(fn *common.ObjFunction, c *Chunk) {
-	fn.Chunk = c
+func FunctionValue(fn *Function) common.Value {
+	return common.ObjValue(fn)
+}
+
+func AsFunction(v common.Value) *Function {
+	return v.As.Obj.(*Function)
 }
