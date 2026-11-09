@@ -16,16 +16,14 @@ func main() {
 
 	args := os.Args
 
-	files := make([]string, len(args))
-
 	var result vm.InterpretResult
 
 	if len(args) > 1 {
-		files = args[1:]
-		if files != nil && len(files) == 1 {
-			result = runFile(v, files[0])
-		} else if len(files) > 1 {
-			panic("Usage: golox [script]")
+		if len(args) == 2 {
+			result = runFile(v, args[1])
+		} else {
+			fmt.Fprintln(os.Stderr, "Usage: golox [script]")
+			os.Exit(64)
 		}
 	} else {
 		repl(v)
@@ -45,27 +43,31 @@ func runFile(v *vm.VM, path string) vm.InterpretResult {
 	f := file.New(path)
 
 	bytes, fileReadError := f.Read()
-
 	if fileReadError != nil {
-		panic(fileReadError)
+		fmt.Fprintf(os.Stderr, "Could not read file %q: %v\n", path, fileReadError)
+		os.Exit(74)
 	}
 
-	fileContent := string(bytes)
-
-	return interpreter.Interpret(v, fileContent)
+	return interpreter.Interpret(v, string(bytes))
 }
 
 func repl(v *vm.VM) {
+	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("> ")
-		scanner := bufio.NewScanner(os.Stdin)
-		scanner.Scan()
+		if !scanner.Scan() {
+			return
+		}
 		line := strings.TrimSpace(scanner.Text())
 
 		if line == "" || line == "exit" {
 			return
 		}
 
-		interpreter.Interpret(v, line)
+		result := interpreter.Interpret(v, line)
+		if result == vm.InterpretCompileError || result == vm.InterpretRuntimeError {
+			// Keep the REPL interactive; errors are already printed.
+			continue
+		}
 	}
 }

@@ -33,9 +33,3 @@ func (c *Chunk) AddConstant(constant common.Value) int {
 	c.Constants.Write(constant)
 	return c.Constants.Size() - 1
 }
-
-func (c *Chunk) Free() {
-	c.Code = nil
-	c.Constants = nil
-	c.Lines = nil
-}

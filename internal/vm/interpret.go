@@ -56,50 +56,35 @@ func (v *VM) Run() InterpretResult {
 		switch instruction {
 		case byte(common.OpConstant), byte(common.OpConstantLong):
 			result = v.ConstantOperation(instruction)
-			break
 		case byte(common.OpGreater):
 			result = v.BinaryOperation('>')
-			break
 		case byte(common.OpLess):
 			result = v.BinaryOperation('<')
-			break
 		case byte(common.OpEqual):
 			result = v.ValuesEqual()
-			break
 		case byte(common.OpAdd):
 			result = v.SumOperation()
-			break
 		case byte(common.OpSubtract):
 			result = v.BinaryOperation('-')
-			break
 		case byte(common.OpMultiply):
 			result = v.BinaryOperation('*')
-			break
 		case byte(common.OpDivide):
 			result = v.BinaryOperation('/')
-			break
 		case byte(common.OpNegate):
 			result = v.UnaryOperation('-')
-			break
 		case byte(common.OpPrint):
 			result = v.PrintValue()
 			fmt.Println()
-			break
 		case byte(common.OpPop):
 			v.Stack.Pop()
-			break
 		case byte(common.OpBang):
 			result = v.UnaryOperation('!')
-			break
 		case byte(common.OpNil):
 			v.Stack.Push(common.NilValue())
-			break
 		case byte(common.OpFalse):
 			v.Stack.Push(common.BoolValue(false))
-			break
 		case byte(common.OpTrue):
 			v.Stack.Push(common.BoolValue(true))
-			break
 		case byte(common.OpDefineGlobal):
 			name, err := v.ReadString()
 			if err != nil {
@@ -112,7 +97,6 @@ func (v *VM) Run() InterpretResult {
 				return InterpretRuntimeError
 			}
 			v.Stack.Pop()
-			break
 		case byte(common.OpGetGlobal):
 			name, err := v.ReadString()
 			if err != nil {
@@ -124,7 +108,6 @@ func (v *VM) Run() InterpretResult {
 				return InterpretRuntimeError
 			}
 			v.Stack.Push(value)
-			break
 		case byte(common.OpSetGlobal):
 			name, err := v.ReadString()
 			if err != nil {
@@ -137,35 +120,29 @@ func (v *VM) Run() InterpretResult {
 				v.runtimeError(errors.UndefinedVariable, name.Content)
 				return InterpretRuntimeError
 			}
-			break
 		case byte(common.OpGetLocal):
 			slot, err := v.ReadByte()
 			if err != nil {
 				return InterpretRuntimeError
 			}
 			v.Stack.Push(v.Stack.GetAt(frame.Slots + int(slot)))
-			break
 		case byte(common.OpSetLocal):
 			slot, err := v.ReadByte()
 			if err != nil {
 				return InterpretRuntimeError
 			}
 			v.Stack.SetAt(frame.Slots+int(slot), v.Stack.GetAt(-1))
-			break
 		case byte(common.OpJumpIfFalse):
 			offset := v.ReadShort()
 			if v.Stack.GetAt(-1).IsFalsey() {
 				frame.IP += offset
 			}
-			break
 		case byte(common.OpJump):
 			offset := v.ReadShort()
 			frame.IP += offset
-			break
 		case byte(common.OpLoop):
 			offset := v.ReadShort()
 			frame.IP -= offset
-			break
 		case byte(common.OpReturn):
 			if v.DebugMode {
 				fmt.Println(debug.PrintValue(v.Stack.Pop()))

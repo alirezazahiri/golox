@@ -20,19 +20,25 @@ const (
 
 func (p *Parser) parsePrecedence(prec Precedence) {
 	p.Advance()
-	prefixRule := p.getRule(p.Previous.Type).Prefix
-
-	if prefixRule == nil {
+	prefix := p.getRule(p.Previous.Type)
+	if prefix == nil || prefix.Prefix == nil {
 		p.error(errors.ExpectExpression)
 		return
 	}
 
 	canAssign := prec <= PREC_ASSIGNMENT
-	prefixRule(canAssign)
+	prefix.Prefix(canAssign)
 
-	for prec <= p.getRule(p.Current.Type).Precedence {
+	for {
+		rule := p.getRule(p.Current.Type)
+		if rule == nil || prec > rule.Precedence {
+			break
+		}
 		p.Advance()
-		infixRule := p.getRule(p.Previous.Type).Infix
-		infixRule(canAssign)
+		if rule.Infix == nil {
+			p.error(errors.ExpectExpression)
+			return
+		}
+		rule.Infix(canAssign)
 	}
 }

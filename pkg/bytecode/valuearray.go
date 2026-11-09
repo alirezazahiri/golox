@@ -16,10 +16,6 @@ func (v *ValueArray) Write(value common.Value) {
 	v.Values = append(v.Values, value)
 }
 
-func (v *ValueArray) Free() {
-	v.Values = nil
-}
-
 func (v *ValueArray) Size() int {
 	return len(v.Values)
 }

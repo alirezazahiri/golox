@@ -66,18 +66,13 @@ func (t *Table) Delete(key *common.ObjString) bool {
 	return true
 }
 
+// AddAll copies all entries from this table into to (used later for class inheritance).
 func (from *Table) AddAll(to *Table) {
 	for _, e := range from.Entries {
 		if e.Key != nil {
 			to.Set(e.Key, e.Value)
 		}
 	}
-}
-
-func (t *Table) Free() {
-	t.Entries = nil
-	t.Count = 0
-	t.Capacity = 0
 }
 
 func (t *Table) findEntry(key *common.ObjString) *Entry {

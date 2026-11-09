@@ -43,6 +43,7 @@ func (vm *VM) InternString(chars string) *common.ObjString {
 
 	str := &common.ObjString{
 		Content: chars,
+		Length:  len(chars),
 		Hash:    hash,
 	}
 
