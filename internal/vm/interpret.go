@@ -131,7 +131,12 @@ func (v *VM) Run() InterpretResult {
 				return InterpretRuntimeError
 			}
 			value := v.Stack.GetAt(-1)
-			v.Globals.Set(name, value)
+			// Set returns true when the key is new — assignment to an undefined global.
+			if v.Globals.Set(name, value) {
+				v.Globals.Delete(name)
+				v.runtimeError(errors.UndefinedVariable, name.Content)
+				return InterpretRuntimeError
+			}
 			break
 		case byte(common.OpGetLocal):
 			slot, err := v.ReadByte()

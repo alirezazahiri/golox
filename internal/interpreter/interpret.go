@@ -29,7 +29,7 @@ func compile(source string, v *vm.VM) *bytecode.Function {
 	p.EmitReturn()
 	function := p.Compiler.Function
 
-	if !p.HadError {
+	if !p.HadError && v.DebugMode {
 		name := "<script>"
 		if function.Name != nil && function.Name.Length != 0 {
 			name = function.Name.Content

@@ -42,7 +42,7 @@ func (p *Parser) declareVariable() {
 			p.error(errors.AlreadyVariableWithThisNameInThisScope)
 		}
 	}
-	p.Compiler.addLocal(name)
+	p.addLocal(name)
 }
 
 func (p *Parser) variable(canAssign bool) {
@@ -54,7 +54,7 @@ func (p *Parser) namedVariable(name scanner.Token, canAssign bool) {
 	var getOp uint8
 	var setOp uint8
 
-	if local, ok := p.Compiler.resolveLocal(name); ok {
+	if local, ok := p.resolveLocal(name); ok {
 		arg = uint8(local)
 		getOp = uint8(common.OpGetLocal)
 		setOp = uint8(common.OpSetLocal)

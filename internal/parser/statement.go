@@ -58,7 +58,7 @@ func (p *Parser) function(ty FunctionType) {
 			paramConstant := p.parseVariable(errors.ExpectParamName)
 			p.defineVariable(paramConstant)
 
-			if p.Match(scanner.TOKEN_COMMA) {
+			if !p.Match(scanner.TOKEN_COMMA) {
 				break
 			}
 		}

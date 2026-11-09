@@ -18,7 +18,7 @@ func (t *Table) adjustCapacity(capacity int) {
 			continue
 		}
 
-		dest := t.findEntry(entry.Key)
+		dest := findEntryIn(entries, capacity, entry.Key)
 		dest.Key = entry.Key
 		dest.Value = entry.Value
 		t.Count++

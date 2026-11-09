@@ -81,11 +81,15 @@ func (t *Table) Free() {
 }
 
 func (t *Table) findEntry(key *common.ObjString) *Entry {
-	index := int(key.Hash % uint32(t.Capacity))
+	return findEntryIn(t.Entries, t.Capacity, key)
+}
+
+func findEntryIn(entries []Entry, capacity int, key *common.ObjString) *Entry {
+	index := int(key.Hash % uint32(capacity))
 	var tombstone *Entry
 
 	for {
-		entry := &t.Entries[index]
+		entry := &entries[index]
 
 		if entry.Key == nil {
 			if entry.Value.IsNil() {
@@ -102,6 +106,6 @@ func (t *Table) findEntry(key *common.ObjString) *Entry {
 			return entry
 		}
 
-		index = (index + 1) % t.Capacity
+		index = (index + 1) % capacity
 	}
 }

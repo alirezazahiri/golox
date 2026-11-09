@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"golox/internal/scanner"
 	"golox/pkg/bytecode"
 	"golox/pkg/errors"
@@ -68,9 +66,10 @@ func NewCompiler(ty FunctionType) *Compiler {
 	return current
 }
 
-func (c *Compiler) addLocal(name scanner.Token) {
+func (p *Parser) addLocal(name scanner.Token) {
+	c := p.Compiler
 	if c.LocalCount >= uInt8Count {
-		c.error(errors.TooManyLocalVariables)
+		p.error(errors.TooManyLocalVariables)
 		return
 	}
 	c.Locals[c.LocalCount] = &Local{
@@ -87,19 +86,16 @@ func (c *Compiler) markInitialized() {
 	c.Locals[c.LocalCount-1].Depth = c.ScopeDepth
 }
 
-func (c *Compiler) resolveLocal(name scanner.Token) (int, bool) {
+func (p *Parser) resolveLocal(name scanner.Token) (int, bool) {
+	c := p.Compiler
 	for i := c.LocalCount - 1; i >= 0; i-- {
 		local := c.Locals[i]
 		if identifiersEqual(&local.Name, &name) {
 			if local.Depth == -1 {
-				c.error(errors.CannotAccessVariableInItsInitializer)
+				p.error(errors.CannotAccessVariableInItsInitializer)
 			}
 			return i, true
 		}
 	}
 	return 0, false
-}
-
-func (c *Compiler) error(msg string) {
-	fmt.Printf("[line %d] Error: %s\n", c.ScopeDepth, msg)
 }
