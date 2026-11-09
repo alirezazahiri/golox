@@ -37,4 +37,5 @@ const (
 	TooMuchCodeToJumpOver                   string = "too much code to jump over"
 	ExpectParamName                         string = "expect parameter name"
 	CannotHaveMoreThanMaxCountParams        string = "can't have more than 255 parameters"
+	InvalidNumber                           string = "invalid number"
 )

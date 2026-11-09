@@ -1,6 +1,8 @@
 package vm
 
 import (
+	"strings"
+
 	"golox/pkg/common"
 	"golox/pkg/errors"
 )
@@ -48,7 +50,13 @@ func (v *VM) SumOperation() InterpretResult {
 		v.Stack.Push(common.NumberValue(left.As.Number + right.As.Number))
 	case common.ValObj:
 		if left.IsString() && right.IsString() {
-			str := v.InternString(left.AsString().Content + right.AsString().Content)
+			leftStr := left.AsString()
+			rightStr := right.AsString()
+			var b strings.Builder
+			b.Grow(len(leftStr.Content) + len(rightStr.Content))
+			b.WriteString(leftStr.Content)
+			b.WriteString(rightStr.Content)
+			str := v.InternString(b.String())
 			v.Stack.Push(common.StringObjValue(str))
 			break
 		}
