@@ -2,8 +2,8 @@ package parser
 
 import (
 	"golox/internal/scanner"
-	"golox/internal/vm"
 	"golox/pkg/bytecode"
+	"golox/pkg/common"
 )
 
 type Parser struct {
@@ -13,17 +13,17 @@ type Parser struct {
 	PanicMode bool
 	scanner   *scanner.Scanner
 	chunk     *bytecode.Chunk
-	vm        *vm.VM
+	interner  common.StringInterner
 	rules     map[scanner.TokenType]ParseRule
 	Compiler  *Compiler
 }
 
-func New(s *scanner.Scanner, v *vm.VM) *Parser {
+func New(s *scanner.Scanner, interner common.StringInterner) *Parser {
 	compiler := NewCompiler(TypeScript)
 	p := &Parser{
 		scanner:  s,
 		chunk:    compiler.Function.Chunk,
-		vm:       v,
+		interner: interner,
 		Compiler: compiler,
 	}
 	p.InitParserRules()

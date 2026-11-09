@@ -1,3 +1,4 @@
+// Package interpreter compiles Lox source to bytecode and runs it on the VM.
 package interpreter
 
 import (

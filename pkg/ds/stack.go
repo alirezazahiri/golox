@@ -9,16 +9,16 @@ type Stack[T any] struct {
 
 func NewStack[T any]() *Stack[T] {
 	return &Stack[T]{
-		values: make([]T, 0, StackMax),
+		values: make([]T, StackMax),
 		top:    0,
 	}
 }
 
 func (s *Stack[T]) Push(element T) {
 	if s.top >= StackMax {
-		panic(fmt.Sprintf("maximum stack size is: %d", cap(s.values)))
+		panic(fmt.Sprintf("maximum stack size is: %d", StackMax))
 	}
-	s.values = append(s.values[:s.top], element)
+	s.values[s.top] = element
 	s.top++
 }
 
@@ -27,8 +27,7 @@ func (s *Stack[T]) Pop() T {
 		panic("stack is empty")
 	}
 	s.top--
-	last := s.values[s.top]
-	return last
+	return s.values[s.top]
 }
 
 func (s *Stack[T]) GetAt(index int) T {
@@ -52,7 +51,6 @@ func (s *Stack[T]) Top() int {
 }
 
 func (s *Stack[T]) Reset() {
-	s.values = nil
 	s.top = 0
 }
 

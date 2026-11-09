@@ -16,8 +16,13 @@ func (p *Parser) parseVariable(errorMessage string) uint8 {
 }
 
 func (p *Parser) identifierConstant(token *scanner.Token) uint8 {
-	str := p.vm.InternString(token.Lexeme)
-	return uint8(p.chunk.AddConstant(common.StringObjValue(str)))
+	str := p.interner.InternString(token.Lexeme)
+	if index, ok := p.Compiler.constantIndex[str]; ok {
+		return index
+	}
+	index := uint8(p.chunk.AddConstant(common.StringObjValue(str)))
+	p.Compiler.constantIndex[str] = index
+	return index
 }
 
 func (p *Parser) defineVariable(name uint8) {
@@ -34,7 +39,7 @@ func (p *Parser) declareVariable() {
 	}
 	name := p.Previous
 	for i := p.Compiler.LocalCount - 1; i >= 0; i-- {
-		local := p.Compiler.Locals[i]
+		local := &p.Compiler.Locals[i]
 		if local.Depth != -1 && local.Depth < p.Compiler.ScopeDepth {
 			break
 		}

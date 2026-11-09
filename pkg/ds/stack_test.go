@@ -96,7 +96,7 @@ func TestStackOverflow(t *testing.T) {
 
 	defer func() {
 		if r := recover(); r == nil {
-			t.Fatalf("expected panic on stack overflow, got none, current stack size: %d", len(s.values))
+			t.Fatalf("expected panic on stack overflow, got none, current top: %d", s.top)
 		}
 	}()
 
