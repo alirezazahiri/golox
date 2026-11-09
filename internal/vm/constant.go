@@ -12,7 +12,7 @@ func (v *VM) ReadConstant() (common.Value, error) {
 	if err != nil {
 		return common.NilValue(), err
 	}
-	return v.Chunk.Constants.Values[i], nil
+	return v.currentChunk().Constants.Values[i], nil
 }
 
 func (v *VM) ReadConstantLong() (common.Value, error) {
@@ -33,7 +33,7 @@ func (v *VM) ReadConstantLong() (common.Value, error) {
 
 	index := (int(b1) << 16) | (int(b2) << 8) | int(b3)
 
-	return v.Chunk.Constants.Values[index], nil
+	return v.currentChunk().Constants.Values[index], nil
 }
 
 func (v *VM) ConstantOperation(op byte) InterpretResult {

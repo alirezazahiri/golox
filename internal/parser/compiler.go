@@ -23,11 +23,36 @@ type Local struct {
 }
 
 type Compiler struct {
+	Enclosing  *Compiler
 	Function   *bytecode.Function
 	Type       FunctionType
 	Locals     [uInt8Count]*Local
 	LocalCount int
 	ScopeDepth int
+}
+
+func (p *Parser) beginFunctionCompiler(ty FunctionType) {
+	enclosing := p.Compiler
+	compiler := &Compiler{
+		Enclosing:  enclosing,
+		LocalCount: 0,
+		ScopeDepth: 0,
+		Function:   bytecode.NewFunction(),
+		Type:       ty,
+	}
+	if ty != TypeScript {
+		compiler.Function.Name = p.vm.InternString(p.Previous.Lexeme)
+	}
+	p.Compiler = compiler
+	p.chunk = compiler.Function.Chunk
+}
+
+func (p *Parser) EndCompiler() *bytecode.Function {
+	p.EmitReturn()
+	function := p.Compiler.Function
+	p.Compiler = p.Compiler.Enclosing
+	p.chunk = p.Compiler.Function.Chunk
+	return function
 }
 
 func NewCompiler(ty FunctionType) *Compiler {
@@ -56,6 +81,9 @@ func (c *Compiler) addLocal(name scanner.Token) {
 }
 
 func (c *Compiler) markInitialized() {
+	if c.ScopeDepth == 0 {
+		return
+	}
 	c.Locals[c.LocalCount-1].Depth = c.ScopeDepth
 }
 

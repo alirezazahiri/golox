@@ -2,6 +2,7 @@ package parser
 
 import (
 	"golox/internal/scanner"
+	"golox/pkg/bytecode"
 	"golox/pkg/common"
 	"golox/pkg/errors"
 	"math"
@@ -9,7 +10,9 @@ import (
 
 func (p *Parser) Declaration() {
 
-	if p.Match(scanner.TOKEN_VAR) {
+	if p.Match(scanner.TOKEN_FUN) {
+		p.funDeclaration()
+	} else if p.Match(scanner.TOKEN_VAR) {
 		p.varDeclaration()
 	} else {
 		p.statement()
@@ -31,6 +34,42 @@ func (p *Parser) varDeclaration() {
 
 	p.Consume(scanner.TOKEN_SEMICOLON, errors.ExpectSemicolonAfterVarDeclaration)
 	p.defineVariable(global)
+}
+
+func (p *Parser) funDeclaration() {
+	global := p.parseVariable(errors.ExpectFunctionName)
+	p.Compiler.markInitialized()
+	p.function(TypeFunction)
+	p.defineVariable(global)
+}
+
+func (p *Parser) function(ty FunctionType) {
+	p.beginFunctionCompiler(ty)
+	p.beginScope()
+
+	p.Consume(scanner.TOKEN_LEFT_PAREN, errors.ExpectLeftParenAfterFunctionName)
+	if !p.Check(scanner.TOKEN_RIGHT_PAREN) {
+		for {
+			p.Compiler.Function.Arity++
+			if p.Compiler.Function.Arity > 255 {
+				p.errorAtCurrent(errors.CannotHaveMoreThanMaxCountParams)
+			}
+
+			paramConstant := p.parseVariable(errors.ExpectParamName)
+			p.defineVariable(paramConstant)
+
+			if p.Match(scanner.TOKEN_COMMA) {
+				break
+			}
+		}
+	}
+	p.Consume(scanner.TOKEN_RIGHT_PAREN, errors.ExpectRightParenAfterFunctionParams)
+	p.Consume(scanner.TOKEN_LEFT_BRACE, errors.ExpectLeftBraceBeforeFunctionBody)
+
+	p.block()
+
+	function := p.EndCompiler()
+	p.EmitConstant(bytecode.FunctionValue(function))
 }
 
 func (p *Parser) statement() {

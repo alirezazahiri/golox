@@ -1,7 +1,9 @@
 package vm
 
 func (v *VM) ReadByte() (byte, error) {
-	b := v.Chunk.Code[v.IP]
-	v.IP++
+	frame := v.currentFrame()
+	code := frame.Function.Chunk.Code
+	b := code[frame.IP]
+	frame.IP++
 	return b, nil
 }

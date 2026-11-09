@@ -17,21 +17,32 @@ const (
 	InterpretRuntimeError
 )
 
-func (v *VM) Interpret(chunk *bytecode.Chunk) InterpretResult {
-	v.WriteChunk(chunk)
-	v.IP = 0
+func (v *VM) InterpretFunction(function *bytecode.Function) InterpretResult {
+	v.FrameCount = 0
+	v.Stack.Reset()
+
+	v.Stack.Push(bytecode.FunctionValue(function))
+
+	frame := &v.Frames[v.FrameCount]
+	v.FrameCount++
+	frame.Function = function
+	frame.IP = 0
+	frame.Slots = 0
+
 	return v.Run()
 }
 
 func (v *VM) Run() InterpretResult {
 	for {
+		frame := v.currentFrame()
+
 		if v.DebugMode {
 			fmt.Printf("          ")
 			for i := range v.Stack.Top() {
 				fmt.Printf("[ %s ]", debug.PrintValue(v.Stack.GetAt(i)))
 			}
 			fmt.Println()
-			debug.DisassembleInstruction(v.Chunk, v.IP)
+			debug.DisassembleInstruction(frame.Function.Chunk, frame.IP)
 		}
 
 		instruction, err := v.ReadByte()
@@ -94,7 +105,7 @@ func (v *VM) Run() InterpretResult {
 			if err != nil {
 				return InterpretRuntimeError
 			}
-			value := v.Stack.GetAt(0)
+			value := v.Stack.GetAt(-1)
 			success := v.Globals.Set(name, value)
 			if !success {
 				v.runtimeError(errors.FailedToSetValueToVariable, name.Content)
@@ -119,7 +130,7 @@ func (v *VM) Run() InterpretResult {
 			if err != nil {
 				return InterpretRuntimeError
 			}
-			value := v.Stack.GetAt(0)
+			value := v.Stack.GetAt(-1)
 			v.Globals.Set(name, value)
 			break
 		case byte(common.OpGetLocal):
@@ -127,35 +138,40 @@ func (v *VM) Run() InterpretResult {
 			if err != nil {
 				return InterpretRuntimeError
 			}
-			v.Stack.Push(v.Stack.GetAt(int(slot)))
+			v.Stack.Push(v.Stack.GetAt(frame.Slots + int(slot)))
 			break
 		case byte(common.OpSetLocal):
 			slot, err := v.ReadByte()
 			if err != nil {
 				return InterpretRuntimeError
 			}
-			v.Stack.SetAt(int(slot), v.Stack.GetAt(-1))
+			v.Stack.SetAt(frame.Slots+int(slot), v.Stack.GetAt(-1))
 			break
 		case byte(common.OpJumpIfFalse):
 			offset := v.ReadShort()
-			value := v.Stack.GetAt(-1)
-			if value.IsFalsey() {
-				v.IP += offset
+			if v.Stack.GetAt(-1).IsFalsey() {
+				frame.IP += offset
 			}
 			break
 		case byte(common.OpJump):
 			offset := v.ReadShort()
-			v.IP += offset
+			frame.IP += offset
 			break
 		case byte(common.OpLoop):
 			offset := v.ReadShort()
-			v.IP -= offset
+			frame.IP -= offset
 			break
 		case byte(common.OpReturn):
 			if v.DebugMode {
 				fmt.Println(debug.PrintValue(v.Stack.Pop()))
+			} else {
+				v.Stack.Pop()
 			}
-			return InterpretOk
+			v.FrameCount--
+			if v.FrameCount == 0 {
+				return InterpretOk
+			}
+			return InterpretRuntimeError
 		}
 		if result != InterpretOk {
 			return result
@@ -164,7 +180,9 @@ func (v *VM) Run() InterpretResult {
 }
 
 func (v *VM) ReadShort() int {
-	offset := (uint16(v.Chunk.Code[v.IP]) << 8) | uint16(v.Chunk.Code[v.IP+1])
-	v.IP += 2
+	frame := v.currentFrame()
+	code := frame.Function.Chunk.Code
+	offset := (uint16(code[frame.IP]) << 8) | uint16(code[frame.IP+1])
+	frame.IP += 2
 	return int(offset)
 }

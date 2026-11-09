@@ -57,5 +57,5 @@ func (s *Stack[T]) Reset() {
 }
 
 const (
-	StackMax = 256
+	StackMax = 16384 // FRAMES_MAX * UINT8_COUNT
 )

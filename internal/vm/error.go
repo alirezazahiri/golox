@@ -6,8 +6,9 @@ import (
 )
 
 func (v *VM) runtimeError(format string, args ...any) {
-	instruction := v.IP - 1
-	line := v.Chunk.GetLine(instruction)
+	frame := v.currentFrame()
+	instruction := frame.IP - 1
+	line := frame.Function.Chunk.GetLine(instruction)
 
 	fmt.Fprintf(os.Stderr, "[line %d] in script\n", line)
 	fmt.Fprintf(os.Stderr, format, args...)
@@ -18,4 +19,5 @@ func (v *VM) runtimeError(format string, args ...any) {
 
 func (v *VM) resetStack() {
 	v.Stack.Reset()
+	v.FrameCount = 0
 }

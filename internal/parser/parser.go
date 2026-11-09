@@ -18,12 +18,13 @@ type Parser struct {
 	Compiler  *Compiler
 }
 
-func New(s *scanner.Scanner, c *bytecode.Chunk, v *vm.VM) *Parser {
+func New(s *scanner.Scanner, v *vm.VM) *Parser {
+	compiler := NewCompiler(TypeScript)
 	p := &Parser{
 		scanner:  s,
-		chunk:    c,
+		chunk:    compiler.Function.Chunk,
 		vm:       v,
-		Compiler: NewCompiler(TypeScript),
+		Compiler: compiler,
 	}
 	p.InitParserRules()
 	return p

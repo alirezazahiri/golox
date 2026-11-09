@@ -1,17 +1,20 @@
 package vm
 
 import (
-	"golox/pkg/bytecode"
 	"golox/pkg/common"
 	"golox/pkg/ds"
 	"golox/pkg/table"
 )
 
-type VM struct {
-	Chunk *bytecode.Chunk
+const (
+	FramesMax  = 64
+	Uint8Count = 256
+	StackMax   = FramesMax * Uint8Count
+)
 
-	// Instruction Pointer
-	IP int
+type VM struct {
+	Frames     [FramesMax]CallFrame
+	FrameCount int
 
 	Stack *ds.Stack[common.Value]
 
@@ -23,11 +26,11 @@ type VM struct {
 
 func New() *VM {
 	return &VM{
-		Chunk:     nil,
-		Stack:     ds.NewStack[common.Value](),
-		DebugMode: false,
-		Strings:   table.New(),
-		Globals:   table.New(),
+		Stack:      ds.NewStack[common.Value](),
+		DebugMode:  false,
+		Strings:    table.New(),
+		Globals:    table.New(),
+		FrameCount: 0,
 	}
 }
 
@@ -47,12 +50,9 @@ func (vm *VM) InternString(chars string) *common.ObjString {
 	return str
 }
 
-func (v *VM) WriteChunk(c *bytecode.Chunk) {
-	v.Chunk = c
-}
-
 func (v *VM) Free() {
-	v.Chunk = nil
+	v.FrameCount = 0
+	v.Stack.Reset()
 }
 
 func (v *VM) ActivateDebugMode() {
