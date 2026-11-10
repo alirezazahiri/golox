@@ -44,6 +44,8 @@ func (p *Parser) beginFunctionCompiler(ty FunctionType) {
 	if ty != TypeScript {
 		compiler.Function.Name = p.interner.InternString(p.Previous.Lexeme)
 	}
+	compiler.Locals[compiler.LocalCount] = Local{Depth: 0}
+	compiler.LocalCount++
 	p.Compiler = compiler
 	p.chunk = compiler.Function.Chunk
 }
@@ -57,17 +59,13 @@ func (p *Parser) EndCompiler() *bytecode.Function {
 }
 
 func NewCompiler(ty FunctionType) *Compiler {
-	current := &Compiler{
+	return &Compiler{
 		LocalCount:    0,
 		ScopeDepth:    0,
 		Function:      bytecode.NewFunction(),
 		Type:          ty,
 		constantIndex: make(map[*common.ObjString]uint8),
 	}
-	current.Locals[current.LocalCount] = Local{Depth: 0}
-	current.LocalCount++
-
-	return current
 }
 
 func (p *Parser) addLocal(name scanner.Token) {

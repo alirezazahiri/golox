@@ -79,6 +79,8 @@ func (p *Parser) statement() {
 		p.forStatement()
 	} else if p.Match(scanner.TOKEN_IF) {
 		p.ifStatement()
+	} else if p.Match(scanner.TOKEN_RETURN) {
+		p.returnStatement()
 	} else if p.Match(scanner.TOKEN_WHILE) {
 		p.whileStatement()
 	} else if p.Match(scanner.TOKEN_LEFT_BRACE) {
@@ -185,6 +187,19 @@ func (p *Parser) printStatement() {
 	p.expression()
 	p.Consume(scanner.TOKEN_SEMICOLON, errors.ExpectSemicolonAfterPrintStatement)
 	p.EmitByte(byte(common.OpPrint))
+}
+
+func (p *Parser) returnStatement() {
+	if p.Compiler.Type == TypeScript {
+		p.error(errors.CantReturnFromTopLevelCode)
+	}
+	if p.Match(scanner.TOKEN_SEMICOLON) {
+		p.EmitReturn()
+	} else {
+		p.expression()
+		p.Consume(scanner.TOKEN_SEMICOLON, errors.ExpectSemicolonAfterReturnValue)
+		p.EmitByte(byte(common.OpReturn))
+	}
 }
 
 func (p *Parser) ifStatement() {

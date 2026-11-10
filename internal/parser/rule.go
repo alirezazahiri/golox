@@ -15,7 +15,7 @@ type ParseRule struct {
 
 func (p *Parser) InitParserRules() {
 	p.rules = map[scanner.TokenType]ParseRule{
-		scanner.TOKEN_LEFT_PAREN:    {p.grouping, nil, PREC_NONE},
+		scanner.TOKEN_LEFT_PAREN:    {p.grouping, p.call, PREC_CALL},
 		scanner.TOKEN_RIGHT_PAREN:   {nil, nil, PREC_NONE},
 		scanner.TOKEN_LEFT_BRACE:    {nil, nil, PREC_NONE},
 		scanner.TOKEN_RIGHT_BRACE:   {nil, nil, PREC_NONE},

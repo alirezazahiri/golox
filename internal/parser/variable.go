@@ -10,7 +10,7 @@ func (p *Parser) parseVariable(errorMessage string) uint8 {
 	p.Consume(scanner.TOKEN_IDENTIFIER, errorMessage)
 	p.declareVariable()
 	if p.Compiler.ScopeDepth > 0 {
-		return 0
+		return uint8(p.Compiler.LocalCount - 1)
 	}
 	return p.identifierConstant(&p.Previous)
 }

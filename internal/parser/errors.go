@@ -20,11 +20,12 @@ func (p *Parser) errorAt(token scanner.Token, msg string) {
 	p.PanicMode = true
 	fmt.Printf("[line %d] Error", token.Line)
 
-	if token.Type == scanner.TOKEN_EOF {
-		fmt.Print(" at end")
-	} else if token.Type == scanner.TOKEN_ERROR {
-		// noop!
-	} else {
+	switch token.Type {
+	case scanner.TOKEN_EOF:
+		fmt.Print(" at the end")
+	case scanner.TOKEN_ERROR: // noop!
+		break
+	default:
 		fmt.Printf(" at '%s'", token.Lexeme)
 	}
 

@@ -54,6 +54,10 @@ func (s *Stack[T]) Reset() {
 	s.top = 0
 }
 
+func (s *Stack[T]) TruncateTo(count int) {
+	s.top = count
+}
+
 const (
 	StackMax = 16384 // FRAMES_MAX * UINT8_COUNT
 )

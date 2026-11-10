@@ -18,6 +18,7 @@ func (p *Parser) EmitByte(b byte) {
 }
 
 func (p *Parser) EmitReturn() {
+	p.EmitByte(byte(common.OpNil))
 	p.EmitByte(byte(common.OpReturn))
 }
 

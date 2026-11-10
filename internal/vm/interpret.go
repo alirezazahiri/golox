@@ -21,8 +21,6 @@ func (v *VM) InterpretFunction(function *bytecode.Function) InterpretResult {
 	v.FrameCount = 0
 	v.Stack.Reset()
 
-	v.Stack.Push(bytecode.FunctionValue(function))
-
 	frame := &v.Frames[v.FrameCount]
 	v.FrameCount++
 	frame.Function = function
@@ -144,16 +142,30 @@ func (v *VM) Run() InterpretResult {
 			offset := v.ReadShort()
 			frame.IP -= offset
 		case byte(common.OpReturn):
+			result := v.Stack.Pop()
 			if v.DebugMode {
-				fmt.Println(debug.PrintValue(v.Stack.Pop()))
-			} else {
-				v.Stack.Pop()
+				fmt.Println(debug.PrintValue(result))
 			}
+			slots := frame.Slots
 			v.FrameCount--
 			if v.FrameCount == 0 {
+				if v.Stack.Top() > 0 {
+					v.Stack.Pop()
+				}
 				return InterpretOk
 			}
-			return InterpretRuntimeError
+			v.Stack.TruncateTo(slots)
+			v.Stack.Push(result)
+			frame = &v.Frames[v.FrameCount-1]
+		case byte(common.OpCall):
+			argCount, err := v.ReadByte()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			if !v.callValue(v.Stack.GetAt(-(int(argCount)+1)), int(argCount)) {
+				return InterpretRuntimeError
+			}
+			frame = &v.Frames[v.FrameCount-1]
 		}
 		if result != InterpretOk {
 			return result
@@ -167,4 +179,32 @@ func (v *VM) ReadShort() int {
 	offset := (uint16(code[frame.IP]) << 8) | uint16(code[frame.IP+1])
 	frame.IP += 2
 	return int(offset)
+}
+
+func (v *VM) callValue(callee common.Value, argCount int) bool {
+	if callee.IsObj() {
+		switch callee.As.Obj.Type() {
+		case common.ObjFunctionType:
+			return v.call(bytecode.AsFunction(callee), argCount)
+		}
+	}
+	v.runtimeError(errors.CanOnlyCallFunctionsAndClasses)
+	return false
+}
+
+func (v *VM) call(function *bytecode.Function, argCount int) bool {
+	if argCount != function.Arity {
+		v.runtimeError(errors.ExpectedArgumentsButGot, function.Arity, argCount)
+		return false
+	}
+	if v.FrameCount == FramesMax {
+		v.runtimeError(errors.StackOverflow)
+		return false
+	}
+	frame := &v.Frames[v.FrameCount]
+	v.FrameCount++
+	frame.Function = function
+	frame.IP = 0
+	frame.Slots = v.Stack.Top() - argCount - 1
+	return true
 }

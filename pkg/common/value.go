@@ -71,6 +71,10 @@ func ObjValue(obj Obj) Value {
 	}
 }
 
+func (v Value) IsObj() bool {
+	return v.Type == ValObj
+}
+
 func (v Value) IsBool() bool {
 	return v.Type == ValBool
 }

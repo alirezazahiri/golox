@@ -4,6 +4,7 @@ import (
 	"golox/internal/scanner"
 	"golox/pkg/common"
 	"golox/pkg/errors"
+	"math"
 )
 
 func (p *Parser) expression() {
@@ -23,10 +24,8 @@ func (p *Parser) unary(canAssign bool) {
 	switch operatorType {
 	case scanner.TOKEN_MINUS:
 		p.EmitByte(byte(common.OpNegate))
-		break
 	case scanner.TOKEN_BANG:
 		p.EmitByte(byte(common.OpBang))
-		break
 	default:
 		return
 	}
@@ -42,37 +41,51 @@ func (p *Parser) binary(canAssign bool) {
 	switch operatorType {
 	case scanner.TOKEN_BANG_EQUAL:
 		p.EmitBytes(byte(common.OpEqual), byte(common.OpBang))
-		break
 	case scanner.TOKEN_EQUAL_EQUAL:
 		p.EmitByte(byte(common.OpEqual))
-		break
 	case scanner.TOKEN_GREATER:
 		p.EmitByte(byte(common.OpGreater))
-		break
 	case scanner.TOKEN_GREATER_EQUAL:
 		p.EmitBytes(byte(common.OpLess), byte(common.OpBang))
-		break
 	case scanner.TOKEN_LESS:
 		p.EmitByte(byte(common.OpLess))
-		break
 	case scanner.TOKEN_LESS_EQUAL:
 		p.EmitBytes(byte(common.OpGreater), byte(common.OpBang))
-		break
 	case scanner.TOKEN_PLUS:
 		p.EmitByte(byte(common.OpAdd))
-		break
 	case scanner.TOKEN_MINUS:
 		p.EmitByte(byte(common.OpSubtract))
-		break
 	case scanner.TOKEN_STAR:
 		p.EmitByte(byte(common.OpMultiply))
-		break
 	case scanner.TOKEN_SLASH:
 		p.EmitByte(byte(common.OpDivide))
-		break
 	default:
 		return // Unreachable.
 	}
+}
+
+func (p *Parser) call(canAssign bool) {
+	argCount := p.argumentList()
+	p.EmitBytes(byte(common.OpCall), argCount)
+}
+
+func (p *Parser) argumentList() byte {
+	var argCount byte = 0
+	if !p.Check(scanner.TOKEN_RIGHT_PAREN) {
+		for {
+			p.expression()
+			if argCount == math.MaxUint8 {
+				p.error(errors.CannotHaveMoreThanMaxCountArgs)
+			}
+			argCount++
+
+			if !p.Match(scanner.TOKEN_COMMA) {
+				break
+			}
+		}
+	}
+	p.Consume(scanner.TOKEN_RIGHT_PAREN, errors.ExpectRightParenAfterArgs)
+	return argCount
 }
 
 func (p *Parser) getRule(t scanner.TokenType) *ParseRule {

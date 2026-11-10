@@ -6,18 +6,22 @@ import (
 )
 
 func (v *VM) runtimeError(format string, args ...any) {
-	frame := v.currentFrame()
-	instruction := frame.IP - 1
-	line := frame.Function.Chunk.GetLine(instruction)
-
-	name := "<script>"
-	if frame.Function.Name != nil && frame.Function.Name.Content != "" {
-		name = frame.Function.Name.Content
-	}
-
-	fmt.Fprintf(os.Stderr, "[line %d] in %s\n", line, name)
 	fmt.Fprintf(os.Stderr, format, args...)
 	fmt.Fprintln(os.Stderr)
+
+	for i := v.FrameCount - 1; i >= 0; i-- {
+		frame := &v.Frames[i]
+		function := frame.Function
+		instruction := frame.IP - 1
+		line := function.Chunk.GetLine(instruction)
+
+		fmt.Fprintf(os.Stderr, "[line %d] in ", line)
+		if function.Name == nil {
+			fmt.Fprintln(os.Stderr, "script")
+		} else {
+			fmt.Fprintf(os.Stderr, "%s()\n", function.Name.Content)
+		}
+	}
 
 	v.resetStack()
 }

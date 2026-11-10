@@ -28,4 +28,5 @@ const (
 	OpGetLocal
 	OpSetGlobal
 	OpSetLocal
+	OpCall
 )

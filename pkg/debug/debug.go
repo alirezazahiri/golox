@@ -32,6 +32,8 @@ func DisassembleInstruction(c *bytecode.Chunk, offset int) int {
 
 	case byte(common.OpReturn):
 		return simpleInstruction("OP_RETURN", offset)
+	case byte(common.OpCall):
+		return constantInstruction("OP_CALL", c, offset)
 
 	case byte(common.OpConstant):
 		return constantInstruction("OP_CONSTANT", c, offset)
@@ -117,6 +119,10 @@ func constantLongInstruction(name string, c *bytecode.Chunk, offset int) int {
 	fmt.Println("'")
 
 	return offset + 4
+}
+
+func byteInstruction(name string, c *bytecode.Chunk, offset int) int {
+	return 0
 }
 
 func jumpInstruction(name string, sign int, c *bytecode.Chunk, offset int) int {
