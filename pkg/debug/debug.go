@@ -145,6 +145,8 @@ func PrintValue(value common.Value) string {
 			return fmt.Sprintf("<fn %s>", fn.Name.Content)
 		}
 		return "<script>"
+	} else if value.IsNativeFn() {
+		return "<native fn>"
 	}
 	return fmt.Sprintf("%v", value.As.Number)
 }

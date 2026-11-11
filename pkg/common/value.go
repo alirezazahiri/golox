@@ -94,3 +94,7 @@ func (v Value) IsFalsey() bool {
 func (v Value) IsFunction() bool {
 	return v.Type == ValObj && v.As.Obj != nil && v.As.Obj.Type() == ObjFunctionType
 }
+
+func (v Value) IsNativeFn() bool {
+	return v.Type == ValObj && v.As.Obj != nil && v.As.Obj.Type() == ObjNativeFnType
+}

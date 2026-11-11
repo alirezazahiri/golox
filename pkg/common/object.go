@@ -5,6 +5,7 @@ type ObjType byte
 const (
 	ObjStringType ObjType = iota + 1
 	ObjFunctionType
+	ObjNativeFnType
 )
 
 type Obj interface {
@@ -17,6 +18,8 @@ func (t ObjType) String() string {
 		return "string"
 	case ObjFunctionType:
 		return "function"
+	case ObjNativeFnType:
+		return "native"
 	default:
 		return ""
 	}

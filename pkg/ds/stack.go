@@ -58,6 +58,10 @@ func (s *Stack[T]) TruncateTo(count int) {
 	s.top = count
 }
 
+func (s *Stack[T]) TopSlice(n int) []T {
+	return s.values[s.top-n : s.top]
+}
+
 const (
 	StackMax = 16384 // FRAMES_MAX * UINT8_COUNT
 )

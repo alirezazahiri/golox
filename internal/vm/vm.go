@@ -25,19 +25,21 @@ type VM struct {
 }
 
 func New() *VM {
-	return &VM{
+	vm := &VM{
 		Stack:      ds.NewStack[common.Value](),
 		DebugMode:  false,
 		Strings:    table.New(),
 		Globals:    table.New(),
 		FrameCount: 0,
 	}
+	vm.defineNatives()
+	return vm
 }
 
-func (vm *VM) InternString(chars string) *common.ObjString {
+func (v *VM) InternString(chars string) *common.ObjString {
 	hash := common.HashString(chars)
 
-	if existing := vm.Strings.FindString(chars, hash); existing != nil {
+	if existing := v.Strings.FindString(chars, hash); existing != nil {
 		return existing
 	}
 
@@ -47,7 +49,7 @@ func (vm *VM) InternString(chars string) *common.ObjString {
 		Hash:    hash,
 	}
 
-	vm.Strings.Set(str, common.NilValue())
+	v.Strings.Set(str, common.NilValue())
 	return str
 }
 

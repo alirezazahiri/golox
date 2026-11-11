@@ -162,7 +162,7 @@ func (v *VM) Run() InterpretResult {
 			if err != nil {
 				return InterpretRuntimeError
 			}
-			if !v.callValue(v.Stack.GetAt(-(int(argCount)+1)), int(argCount)) {
+			if !v.callValue(v.Stack.GetAt(-(int(argCount) + 1)), int(argCount)) {
 				return InterpretRuntimeError
 			}
 			frame = &v.Frames[v.FrameCount-1]
@@ -186,6 +186,13 @@ func (v *VM) callValue(callee common.Value, argCount int) bool {
 		switch callee.As.Obj.Type() {
 		case common.ObjFunctionType:
 			return v.call(bytecode.AsFunction(callee), argCount)
+		case common.ObjNativeFnType:
+			native := bytecode.AsNative(callee)
+			args := v.Stack.TopSlice(argCount)
+			result := native.Function(argCount, args)
+			v.Stack.TruncateTo(v.Stack.Top() - argCount - 1)
+			v.Stack.Push(result)
+			return true
 		}
 	}
 	v.runtimeError(errors.CanOnlyCallFunctionsAndClasses)
