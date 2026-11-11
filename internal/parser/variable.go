@@ -63,6 +63,10 @@ func (p *Parser) namedVariable(name scanner.Token, canAssign bool) {
 		arg = uint8(local)
 		getOp = uint8(common.OpGetLocal)
 		setOp = uint8(common.OpSetLocal)
+	} else if upvalue := p.resolveUpvalue(p.Compiler, name); upvalue != -1 {
+		arg = uint8(upvalue)
+		getOp = uint8(common.OpGetUpvalue)
+		setOp = uint8(common.OpSetUpvalue)
 	} else {
 		arg = p.identifierConstant(&name)
 		getOp = uint8(common.OpGetGlobal)

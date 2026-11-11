@@ -6,6 +6,8 @@ const (
 	ObjStringType ObjType = iota + 1
 	ObjFunctionType
 	ObjNativeFnType
+	ObjClosureType
+	ObjUpvalueType
 )
 
 type Obj interface {
@@ -20,6 +22,10 @@ func (t ObjType) String() string {
 		return "function"
 	case ObjNativeFnType:
 		return "native"
+	case ObjClosureType:
+		return "closure"
+	case ObjUpvalueType:
+		return "upvalue"
 	default:
 		return ""
 	}

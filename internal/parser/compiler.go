@@ -17,8 +17,14 @@ const (
 const uInt8Count int = 256
 
 type Local struct {
-	Name  scanner.Token
-	Depth int
+	Name       scanner.Token
+	Depth      int
+	IsCaptured bool
+}
+
+type Upvalue struct {
+	Index   uint8
+	IsLocal bool
 }
 
 type Compiler struct {
@@ -27,6 +33,8 @@ type Compiler struct {
 	Type          FunctionType
 	Locals        [uInt8Count]Local
 	LocalCount    int
+	Upvalues      [uInt8Count]Upvalue
+	UpvalueCount  int
 	ScopeDepth    int
 	constantIndex map[*common.ObjString]uint8
 }
@@ -59,13 +67,16 @@ func (p *Parser) EndCompiler() *bytecode.Function {
 }
 
 func NewCompiler(ty FunctionType) *Compiler {
-	return &Compiler{
+	compiler := &Compiler{
 		LocalCount:    0,
 		ScopeDepth:    0,
 		Function:      bytecode.NewFunction(),
 		Type:          ty,
 		constantIndex: make(map[*common.ObjString]uint8),
 	}
+	compiler.Locals[compiler.LocalCount] = Local{Depth: 0}
+	compiler.LocalCount++
+	return compiler
 }
 
 func (p *Parser) addLocal(name scanner.Token) {
@@ -75,8 +86,9 @@ func (p *Parser) addLocal(name scanner.Token) {
 		return
 	}
 	c.Locals[c.LocalCount] = Local{
-		Name:  name,
-		Depth: -1,
+		Name:       name,
+		Depth:      -1,
+		IsCaptured: false,
 	}
 	c.LocalCount++
 }
@@ -89,15 +101,5 @@ func (c *Compiler) markInitialized() {
 }
 
 func (p *Parser) resolveLocal(name scanner.Token) (int, bool) {
-	c := p.Compiler
-	for i := c.LocalCount - 1; i >= 0; i-- {
-		local := &c.Locals[i]
-		if identifiersEqual(&local.Name, &name) {
-			if local.Depth == -1 {
-				p.error(errors.CannotAccessVariableInItsInitializer)
-			}
-			return i, true
-		}
-	}
-	return 0, false
+	return p.resolveLocalIn(p.Compiler, name)
 }

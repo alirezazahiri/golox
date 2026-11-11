@@ -43,4 +43,5 @@ const (
 	StackOverflow                           string = "stack overflow"
 	CantReturnFromTopLevelCode              string = "can't return from top-level code"
 	ExpectSemicolonAfterReturnValue         string = "expected ';' after return value"
+	TooManyClosureVariables                 string = "too many closure variables in function"
 )

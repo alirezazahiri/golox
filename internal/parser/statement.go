@@ -2,7 +2,6 @@ package parser
 
 import (
 	"golox/internal/scanner"
-	"golox/pkg/bytecode"
 	"golox/pkg/common"
 	"golox/pkg/errors"
 	"math"
@@ -68,8 +67,12 @@ func (p *Parser) function(ty FunctionType) {
 
 	p.block()
 
+	upvalueCount := p.Compiler.UpvalueCount
+	upvalues := make([]Upvalue, upvalueCount)
+	copy(upvalues, p.Compiler.Upvalues[:upvalueCount])
+
 	function := p.EndCompiler()
-	p.EmitConstant(bytecode.FunctionValue(function))
+	p.emitClosure(function, upvalues)
 }
 
 func (p *Parser) statement() {
@@ -176,8 +179,13 @@ func (p *Parser) endScope() {
 
 	for p.Compiler.LocalCount > 0 &&
 		p.Compiler.Locals[p.Compiler.LocalCount-1].Depth > p.Compiler.ScopeDepth {
-		if p.Compiler.Locals[p.Compiler.LocalCount-1].Depth != -1 {
-			p.EmitByte(byte(common.OpPop))
+		local := &p.Compiler.Locals[p.Compiler.LocalCount-1]
+		if local.Depth != -1 {
+			if local.IsCaptured {
+				p.EmitByte(byte(common.OpCloseUpvalue))
+			} else {
+				p.EmitByte(byte(common.OpPop))
+			}
 		}
 		p.Compiler.LocalCount--
 	}

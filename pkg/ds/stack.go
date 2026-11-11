@@ -58,6 +58,10 @@ func (s *Stack[T]) TruncateTo(count int) {
 	s.top = count
 }
 
+func (s *Stack[T]) Slot(index int) *T {
+	return &s.values[index]
+}
+
 func (s *Stack[T]) TopSlice(n int) []T {
 	return s.values[s.top-n : s.top]
 }

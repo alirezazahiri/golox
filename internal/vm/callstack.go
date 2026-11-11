@@ -5,9 +5,9 @@ import (
 )
 
 type CallFrame struct {
-	Function *bytecode.Function
-	IP       int
-	Slots    int
+	Closure *bytecode.Closure
+	IP      int
+	Slots   int
 }
 
 func (v *VM) currentFrame() *CallFrame {
@@ -15,5 +15,5 @@ func (v *VM) currentFrame() *CallFrame {
 }
 
 func (v *VM) currentChunk() *bytecode.Chunk {
-	return v.currentFrame().Function.Chunk
+	return v.currentFrame().Closure.Function.Chunk
 }

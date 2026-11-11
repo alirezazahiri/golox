@@ -3,6 +3,7 @@ package parser
 import (
 	"math"
 
+	"golox/pkg/bytecode"
 	"golox/pkg/common"
 	"golox/pkg/errors"
 )
@@ -23,7 +24,10 @@ func (p *Parser) EmitReturn() {
 }
 
 func (p *Parser) EmitConstant(value common.Value) {
-	constant := p.chunk.AddConstant(value)
+	constant := p.makeConstant(value)
+	if constant < 0 {
+		return
+	}
 
 	if constant <= 0xff {
 		p.EmitBytes(
@@ -36,8 +40,35 @@ func (p *Parser) EmitConstant(value common.Value) {
 		p.EmitByte(byte((constant >> 16) & 0xFF))
 		p.EmitByte(byte((constant >> 8) & 0xFF))
 		p.EmitByte(byte(constant & 0xFF))
-	} else {
+	}
+}
+
+func (p *Parser) makeConstant(value common.Value) int {
+	constant := p.chunk.AddConstant(value)
+	if constant > 0xFFFFFF {
 		p.error(errors.TooManyConstantsInOneChunk)
+		return -1
+	}
+	return constant
+}
+
+func (p *Parser) emitClosure(function *bytecode.Function, upvalues []Upvalue) {
+	constant := p.makeConstant(bytecode.FunctionValue(function))
+	if constant < 0 {
+		return
+	}
+	if constant > 0xff {
+		p.error(errors.TooManyConstantsInOneChunk)
+		return
+	}
+	p.EmitBytes(byte(common.OpClosure), byte(constant))
+	for _, upvalue := range upvalues {
+		if upvalue.IsLocal {
+			p.EmitByte(1)
+		} else {
+			p.EmitByte(0)
+		}
+		p.EmitByte(upvalue.Index)
 	}
 }
 

@@ -20,13 +20,12 @@ const (
 func (v *VM) InterpretFunction(function *bytecode.Function) InterpretResult {
 	v.FrameCount = 0
 	v.Stack.Reset()
+	v.OpenUpvalues = nil
 
-	frame := &v.Frames[v.FrameCount]
-	v.FrameCount++
-	frame.Function = function
-	frame.IP = 0
-	frame.Slots = 0
+	closure := bytecode.NewClosure(function)
+	v.Stack.Push(bytecode.ClosureValue(closure))
 
+	v.callClosure(closure, 0)
 	return v.Run()
 }
 
@@ -40,7 +39,7 @@ func (v *VM) Run() InterpretResult {
 				fmt.Printf("[ %s ]", debug.PrintValue(v.Stack.GetAt(i)))
 			}
 			fmt.Println()
-			debug.DisassembleInstruction(frame.Function.Chunk, frame.IP)
+			debug.DisassembleInstruction(frame.Closure.Function.Chunk, frame.IP)
 		}
 
 		instruction, err := v.ReadByte()
@@ -74,6 +73,9 @@ func (v *VM) Run() InterpretResult {
 			result = v.PrintValue()
 			fmt.Println()
 		case byte(common.OpPop):
+			v.Stack.Pop()
+		case byte(common.OpCloseUpvalue):
+			v.closeUpvalues(v.Stack.Top() - 1)
 			v.Stack.Pop()
 		case byte(common.OpBang):
 			result = v.UnaryOperation('!')
@@ -130,6 +132,18 @@ func (v *VM) Run() InterpretResult {
 				return InterpretRuntimeError
 			}
 			v.Stack.SetAt(frame.Slots+int(slot), v.Stack.GetAt(-1))
+		case byte(common.OpGetUpvalue):
+			slot, err := v.ReadByte()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			v.Stack.Push(*frame.Closure.Upvalues[slot].Location)
+		case byte(common.OpSetUpvalue):
+			slot, err := v.ReadByte()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			*frame.Closure.Upvalues[slot].Location = v.Stack.GetAt(-1)
 		case byte(common.OpJumpIfFalse):
 			offset := v.ReadShort()
 			if v.Stack.GetAt(-1).IsFalsey() {
@@ -141,12 +155,36 @@ func (v *VM) Run() InterpretResult {
 		case byte(common.OpLoop):
 			offset := v.ReadShort()
 			frame.IP -= offset
+		case byte(common.OpClosure):
+			functionValue, err := v.ReadConstant()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			function := bytecode.AsFunction(functionValue)
+			closure := bytecode.NewClosure(function)
+			for i := 0; i < closure.UpvalueCount; i++ {
+				isLocal, err := v.ReadByte()
+				if err != nil {
+					return InterpretRuntimeError
+				}
+				index, err := v.ReadByte()
+				if err != nil {
+					return InterpretRuntimeError
+				}
+				if isLocal == 1 {
+					closure.Upvalues[i] = v.captureUpvalue(frame.Slots + int(index))
+				} else {
+					closure.Upvalues[i] = frame.Closure.Upvalues[index]
+				}
+			}
+			v.Stack.Push(bytecode.ClosureValue(closure))
 		case byte(common.OpReturn):
 			result := v.Stack.Pop()
 			if v.DebugMode {
 				fmt.Println(debug.PrintValue(result))
 			}
 			slots := frame.Slots
+			v.closeUpvalues(slots)
 			v.FrameCount--
 			if v.FrameCount == 0 {
 				if v.Stack.Top() > 0 {
@@ -175,7 +213,7 @@ func (v *VM) Run() InterpretResult {
 
 func (v *VM) ReadShort() int {
 	frame := v.currentFrame()
-	code := frame.Function.Chunk.Code
+	code := frame.Closure.Function.Chunk.Code
 	offset := (uint16(code[frame.IP]) << 8) | uint16(code[frame.IP+1])
 	frame.IP += 2
 	return int(offset)
@@ -184,8 +222,8 @@ func (v *VM) ReadShort() int {
 func (v *VM) callValue(callee common.Value, argCount int) bool {
 	if callee.IsObj() {
 		switch callee.As.Obj.Type() {
-		case common.ObjFunctionType:
-			return v.call(bytecode.AsFunction(callee), argCount)
+		case common.ObjClosureType:
+			return v.callClosure(bytecode.AsClosure(callee), argCount)
 		case common.ObjNativeFnType:
 			native := bytecode.AsNative(callee)
 			args := v.Stack.TopSlice(argCount)
@@ -199,9 +237,9 @@ func (v *VM) callValue(callee common.Value, argCount int) bool {
 	return false
 }
 
-func (v *VM) call(function *bytecode.Function, argCount int) bool {
-	if argCount != function.Arity {
-		v.runtimeError(errors.ExpectedArgumentsButGot, function.Arity, argCount)
+func (v *VM) callClosure(closure *bytecode.Closure, argCount int) bool {
+	if argCount != closure.Function.Arity {
+		v.runtimeError(errors.ExpectedArgumentsButGot, closure.Function.Arity, argCount)
 		return false
 	}
 	if v.FrameCount == FramesMax {
@@ -210,7 +248,7 @@ func (v *VM) call(function *bytecode.Function, argCount int) bool {
 	}
 	frame := &v.Frames[v.FrameCount]
 	v.FrameCount++
-	frame.Function = function
+	frame.Closure = closure
 	frame.IP = 0
 	frame.Slots = v.Stack.Top() - argCount - 1
 	return true

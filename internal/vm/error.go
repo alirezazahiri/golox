@@ -11,7 +11,7 @@ func (v *VM) runtimeError(format string, args ...any) {
 
 	for i := v.FrameCount - 1; i >= 0; i-- {
 		frame := &v.Frames[i]
-		function := frame.Function
+		function := frame.Closure.Function
 		instruction := frame.IP - 1
 		line := function.Chunk.GetLine(instruction)
 
@@ -29,4 +29,5 @@ func (v *VM) runtimeError(format string, args ...any) {
 func (v *VM) resetStack() {
 	v.Stack.Reset()
 	v.FrameCount = 0
+	v.OpenUpvalues = nil
 }

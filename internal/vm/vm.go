@@ -1,6 +1,7 @@
 package vm
 
 import (
+	"golox/pkg/bytecode"
 	"golox/pkg/common"
 	"golox/pkg/ds"
 	"golox/pkg/table"
@@ -18,8 +19,9 @@ type VM struct {
 
 	Stack *ds.Stack[common.Value]
 
-	Strings *table.Table
-	Globals *table.Table
+	Strings      *table.Table
+	Globals      *table.Table
+	OpenUpvalues *bytecode.Upvalue
 
 	DebugMode bool
 }
@@ -56,6 +58,7 @@ func (v *VM) InternString(chars string) *common.ObjString {
 func (v *VM) Free() {
 	v.FrameCount = 0
 	v.Stack.Reset()
+	v.OpenUpvalues = nil
 }
 
 func (v *VM) ActivateDebugMode() {

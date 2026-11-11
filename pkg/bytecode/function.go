@@ -3,9 +3,10 @@ package bytecode
 import "golox/pkg/common"
 
 type Function struct {
-	Arity int
-	Chunk *Chunk
-	Name  *common.ObjString
+	Arity        int
+	UpvalueCount int
+	Chunk        *Chunk
+	Name         *common.ObjString
 }
 
 func (f *Function) Type() common.ObjType {

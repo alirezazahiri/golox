@@ -47,6 +47,8 @@ func DisassembleInstruction(c *bytecode.Chunk, offset int) int {
 		return simpleInstruction("OP_PRINT", offset)
 	case byte(common.OpPop):
 		return simpleInstruction("OP_POP", offset)
+	case byte(common.OpCloseUpvalue):
+		return simpleInstruction("OP_CLOSE_UPVALUE", offset)
 	case byte(common.OpBang):
 		return simpleInstruction("OP_BANG", offset)
 
@@ -73,9 +75,15 @@ func DisassembleInstruction(c *bytecode.Chunk, offset int) int {
 	case byte(common.OpSetGlobal):
 		return constantInstruction("OP_SET_GLOBAL", c, offset)
 	case byte(common.OpGetLocal):
-		return constantInstruction("OP_GET_LOCAL", c, offset)
+		return byteInstruction("OP_GET_LOCAL", c, offset)
 	case byte(common.OpSetLocal):
-		return constantInstruction("OP_SET_LOCAL", c, offset)
+		return byteInstruction("OP_SET_LOCAL", c, offset)
+	case byte(common.OpGetUpvalue):
+		return byteInstruction("OP_GET_UPVALUE", c, offset)
+	case byte(common.OpSetUpvalue):
+		return byteInstruction("OP_SET_UPVALUE", c, offset)
+	case byte(common.OpClosure):
+		return closureInstruction("OP_CLOSURE", c, offset)
 	case byte(common.OpGreater):
 		return simpleInstruction("OP_GREATER", offset)
 	case byte(common.OpEqual):
@@ -122,7 +130,26 @@ func constantLongInstruction(name string, c *bytecode.Chunk, offset int) int {
 }
 
 func byteInstruction(name string, c *bytecode.Chunk, offset int) int {
-	return 0
+	slot := c.Code[offset+1]
+	fmt.Printf("%-16s %4d\n", name, slot)
+	return offset + 2
+}
+
+func closureInstruction(name string, c *bytecode.Chunk, offset int) int {
+	constant := c.Code[offset+1]
+	fmt.Printf("%-16s %4d ", name, constant)
+	fmt.Printf("%s\n", PrintValue(c.Constants.Values[constant]))
+	offset += 2
+
+	function := bytecode.AsFunction(c.Constants.Values[constant])
+	for j := 0; j < function.UpvalueCount; j++ {
+		isLocal := c.Code[offset]
+		index := c.Code[offset+1]
+		fmt.Printf("%04d      |                     %s %d\n",
+			offset, map[bool]string{true: "local", false: "upvalue"}[isLocal == 1], index)
+		offset += 2
+	}
+	return offset
 }
 
 func jumpInstruction(name string, sign int, c *bytecode.Chunk, offset int) int {
@@ -142,6 +169,11 @@ func PrintValue(value common.Value) string {
 		return value.AsString().Content
 	} else if value.IsFunction() {
 		if fn := bytecode.AsFunction(value); fn.Name != nil {
+			return fmt.Sprintf("<fn %s>", fn.Name.Content)
+		}
+		return "<script>"
+	} else if value.IsClosure() {
+		if fn := bytecode.AsClosure(value).Function; fn.Name != nil {
 			return fmt.Sprintf("<fn %s>", fn.Name.Content)
 		}
 		return "<script>"

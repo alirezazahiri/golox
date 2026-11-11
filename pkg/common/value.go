@@ -98,3 +98,7 @@ func (v Value) IsFunction() bool {
 func (v Value) IsNativeFn() bool {
 	return v.Type == ValObj && v.As.Obj != nil && v.As.Obj.Type() == ObjNativeFnType
 }
+
+func (v Value) IsClosure() bool {
+	return v.Type == ValObj && v.As.Obj != nil && v.As.Obj.Type() == ObjClosureType
+}

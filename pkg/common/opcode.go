@@ -29,4 +29,8 @@ const (
 	OpSetGlobal
 	OpSetLocal
 	OpCall
+	OpClosure
+	OpGetUpvalue
+	OpSetUpvalue
+	OpCloseUpvalue
 )
