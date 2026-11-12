@@ -6,15 +6,16 @@ import (
 )
 
 type Parser struct {
-	Current   scanner.Token
-	Previous  scanner.Token
-	HadError  bool
-	PanicMode bool
-	scanner   *scanner.Scanner
-	chunk     *bytecode.Chunk
-	allocator Allocator
-	rules     map[scanner.TokenType]ParseRule
-	Compiler  *Compiler
+	Current      scanner.Token
+	Previous     scanner.Token
+	HadError     bool
+	PanicMode    bool
+	scanner      *scanner.Scanner
+	chunk        *bytecode.Chunk
+	allocator    Allocator
+	rules        map[scanner.TokenType]ParseRule
+	Compiler     *Compiler
+	currentClass *ClassCompiler
 }
 
 func New(s *scanner.Scanner, allocator Allocator) *Parser {

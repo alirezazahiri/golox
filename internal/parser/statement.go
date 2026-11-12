@@ -8,8 +8,9 @@ import (
 )
 
 func (p *Parser) Declaration() {
-
-	if p.Match(scanner.TOKEN_FUN) {
+	if p.Match(scanner.TOKEN_CLASS) {
+		p.classDeclaration()
+	} else if p.Match(scanner.TOKEN_FUN) {
 		p.funDeclaration()
 	} else if p.Match(scanner.TOKEN_VAR) {
 		p.varDeclaration()
@@ -204,6 +205,9 @@ func (p *Parser) returnStatement() {
 	if p.Match(scanner.TOKEN_SEMICOLON) {
 		p.EmitReturn()
 	} else {
+		if p.Compiler.Type == TypeInitializer {
+			p.error(errors.CantReturnAValueFromAnInitializer)
+		}
 		p.expression()
 		p.Consume(scanner.TOKEN_SEMICOLON, errors.ExpectSemicolonAfterReturnValue)
 		p.EmitByte(byte(common.OpReturn))

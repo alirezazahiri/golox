@@ -19,7 +19,11 @@ func (p *Parser) EmitByte(b byte) {
 }
 
 func (p *Parser) EmitReturn() {
-	p.EmitByte(byte(common.OpNil))
+	if p.Compiler.Type == TypeInitializer {
+		p.EmitBytes(byte(common.OpGetLocal), 0)
+	} else {
+		p.EmitByte(byte(common.OpNil))
+	}
 	p.EmitByte(byte(common.OpReturn))
 }
 

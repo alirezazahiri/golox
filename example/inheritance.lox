@@ -1,0 +1,37 @@
+class Doughnut {
+  cook() {
+    print "Fry until golden brown.";
+  }
+}
+
+class BostonCream < Doughnut {
+  cook() {
+    super.cook();
+    print "Pipe full of custard and coat with chocolate.";
+  }
+}
+
+BostonCream().cook();
+
+class Animal {
+  init(name) {
+    this.name = name;
+  }
+
+  speak() {
+    print this.name + " makes a noise.";
+  }
+}
+
+class Dog < Animal {
+  init(name) {
+    super.init(name);
+  }
+
+  speak() {
+    print this.name + " barks.";
+  }
+}
+
+var dog = Dog("Rex");
+dog.speak();

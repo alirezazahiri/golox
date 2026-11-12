@@ -41,6 +41,7 @@ func (v *VM) markRoots() {
 	}
 
 	v.markTable(v.Globals)
+	v.markObject(v.InitString)
 	v.markCompilerRoots()
 }
 
@@ -108,6 +109,15 @@ func (v *VM) blackenObject(obj common.Obj) {
 		}
 	case *bytecode.Upvalue:
 		v.markValue(o.Closed)
+	case *bytecode.Class:
+		v.markObject(o.Name)
+		v.markTable(&o.Methods)
+	case *bytecode.Instance:
+		v.markObject(o.Klass)
+		v.markTable(&o.Fields)
+	case *bytecode.BoundMethod:
+		v.markValue(o.Receiver)
+		v.markObject(o.Method)
 	}
 }
 
@@ -147,6 +157,12 @@ func (v *VM) freeObject(obj common.Obj) {
 		v.bytesAllocated -= sizeOfUpvalue()
 	case *bytecode.ObjNative:
 		v.bytesAllocated -= sizeOfNative()
+	case *bytecode.Class:
+		v.bytesAllocated -= sizeOfClass()
+	case *bytecode.Instance:
+		v.bytesAllocated -= sizeOfInstance()
+	case *bytecode.BoundMethod:
+		v.bytesAllocated -= sizeOfBoundMethod()
 	}
 	if v.bytesAllocated < 0 {
 		v.bytesAllocated = 0

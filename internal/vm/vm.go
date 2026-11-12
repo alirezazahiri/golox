@@ -23,6 +23,7 @@ type VM struct {
 	Strings      *table.Table
 	Globals      *table.Table
 	OpenUpvalues *bytecode.Upvalue
+	InitString   *common.ObjString
 
 	objects        common.Obj
 	bytesAllocated int
@@ -43,6 +44,7 @@ func New() *VM {
 		nextGC:         initialGCThreshold,
 		bytesAllocated: 0,
 	}
+	vm.InitString = vm.InternString("init")
 	vm.defineNatives()
 	return vm
 }
@@ -52,6 +54,7 @@ func (v *VM) Free() {
 	v.Stack.Reset()
 	v.OpenUpvalues = nil
 	v.compilerRoot = nil
+	v.InitString = nil
 	v.freeObjects()
 	v.Strings = table.New()
 	v.Globals = table.New()

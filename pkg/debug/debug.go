@@ -98,6 +98,23 @@ func DisassembleInstruction(c *bytecode.Chunk, offset int) int {
 	case byte(common.OpLoop):
 		return jumpInstruction("OP_LOOP", -1, c, offset)
 
+	case byte(common.OpClass):
+		return constantInstruction("OP_CLASS", c, offset)
+	case byte(common.OpGetProperty):
+		return constantInstruction("OP_GET_PROPERTY", c, offset)
+	case byte(common.OpSetProperty):
+		return constantInstruction("OP_SET_PROPERTY", c, offset)
+	case byte(common.OpMethod):
+		return constantInstruction("OP_METHOD", c, offset)
+	case byte(common.OpInvoke):
+		return invokeInstruction("OP_INVOKE", c, offset)
+	case byte(common.OpInherit):
+		return simpleInstruction("OP_INHERIT", offset)
+	case byte(common.OpGetSuper):
+		return constantInstruction("OP_GET_SUPER", c, offset)
+	case byte(common.OpSuperInvoke):
+		return invokeInstruction("OP_SUPER_INVOKE", c, offset)
+
 	default:
 		fmt.Printf("Unknown opcode %d\n", instruction)
 		return offset + 1
@@ -160,6 +177,14 @@ func jumpInstruction(name string, sign int, c *bytecode.Chunk, offset int) int {
 	return offset + 3
 }
 
+func invokeInstruction(name string, c *bytecode.Chunk, offset int) int {
+	constant := c.Code[offset+1]
+	argCount := c.Code[offset+2]
+	fmt.Printf("%-16s (%d args) %4d '%s'\n",
+		name, argCount, constant, PrintValue(c.Constants.Values[constant]))
+	return offset + 3
+}
+
 func PrintValue(value common.Value) string {
 	if value.IsNil() {
 		return "nil"
@@ -179,6 +204,16 @@ func PrintValue(value common.Value) string {
 		return "<script>"
 	} else if value.IsNativeFn() {
 		return "<native fn>"
+	} else if value.IsClass() {
+		return fmt.Sprintf("<class %s>", bytecode.AsClass(value).Name.Content)
+	} else if value.IsInstance() {
+		return fmt.Sprintf("%s instance", bytecode.AsInstance(value).Klass.Name.Content)
+	} else if value.IsBoundMethod() {
+		fn := bytecode.AsBoundMethod(value).Method.Function
+		if fn.Name != nil {
+			return fmt.Sprintf("<fn %s>", fn.Name.Content)
+		}
+		return "<fn>"
 	}
 	return fmt.Sprintf("%v", value.As.Number)
 }

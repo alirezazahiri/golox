@@ -102,3 +102,15 @@ func (v Value) IsNativeFn() bool {
 func (v Value) IsClosure() bool {
 	return v.Type == ValObj && v.As.Obj != nil && v.As.Obj.Type() == ObjClosureType
 }
+
+func (v Value) IsClass() bool {
+	return v.Type == ValObj && v.As.Obj != nil && v.As.Obj.Type() == ObjClassType
+}
+
+func (v Value) IsInstance() bool {
+	return v.Type == ValObj && v.As.Obj != nil && v.As.Obj.Type() == ObjInstanceType
+}
+
+func (v Value) IsBoundMethod() bool {
+	return v.Type == ValObj && v.As.Obj != nil && v.As.Obj.Type() == ObjBoundMethodType
+}

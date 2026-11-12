@@ -12,6 +12,8 @@ type FunctionType = byte
 const (
 	TypeFunction FunctionType = iota + 1
 	TypeScript
+	TypeMethod
+	TypeInitializer
 )
 
 const uInt8Count int = 256
@@ -25,6 +27,11 @@ type Local struct {
 type Upvalue struct {
 	Index   uint8
 	IsLocal bool
+}
+
+type ClassCompiler struct {
+	Enclosing     *ClassCompiler
+	HasSuperclass bool
 }
 
 type Compiler struct {
@@ -52,8 +59,17 @@ func (p *Parser) beginFunctionCompiler(ty FunctionType) {
 	if ty != TypeScript {
 		compiler.Function.Name = p.allocator.InternString(p.Previous.Lexeme)
 	}
-	compiler.Locals[compiler.LocalCount] = Local{Depth: 0}
+	if ty == TypeInitializer {
+		compiler.Function.IsInitializer = true
+	}
+
+	local := Local{Depth: 0}
+	if ty != TypeFunction && ty != TypeScript {
+		local.Name = syntheticToken("this")
+	}
+	compiler.Locals[compiler.LocalCount] = local
 	compiler.LocalCount++
+
 	p.Compiler = compiler
 	p.chunk = compiler.Function.Chunk
 }
@@ -102,4 +118,11 @@ func (c *Compiler) markInitialized() {
 
 func (p *Parser) resolveLocal(name scanner.Token) (int, bool) {
 	return p.resolveLocalIn(p.Compiler, name)
+}
+
+func syntheticToken(text string) scanner.Token {
+	return scanner.Token{
+		Type:   scanner.TOKEN_IDENTIFIER,
+		Lexeme: text,
+	}
 }

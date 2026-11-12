@@ -33,4 +33,12 @@ const (
 	OpGetUpvalue
 	OpSetUpvalue
 	OpCloseUpvalue
+	OpClass
+	OpGetProperty
+	OpSetProperty
+	OpMethod
+	OpInvoke
+	OpInherit
+	OpGetSuper
+	OpSuperInvoke
 )

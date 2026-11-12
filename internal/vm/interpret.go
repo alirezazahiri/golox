@@ -114,7 +114,6 @@ func (v *VM) Run() InterpretResult {
 				return InterpretRuntimeError
 			}
 			value := v.Stack.GetAt(-1)
-			// Set returns true when the key is new — assignment to an undefined global.
 			if v.Globals.Set(name, value) {
 				v.Globals.Delete(name)
 				v.runtimeError(errors.UndefinedVariable, name.Content)
@@ -162,7 +161,6 @@ func (v *VM) Run() InterpretResult {
 			}
 			function := bytecode.AsFunction(functionValue)
 			closure := v.allocateClosure(function)
-			// Push before capturing upvalues so the closure is a GC root.
 			v.Stack.Push(bytecode.ClosureValue(closure))
 			for i := 0; i < closure.UpvalueCount; i++ {
 				isLocal, err := v.ReadByte()
@@ -179,10 +177,98 @@ func (v *VM) Run() InterpretResult {
 					closure.Upvalues[i] = frame.Closure.Upvalues[index]
 				}
 			}
+		case byte(common.OpClass):
+			name, err := v.ReadString()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			v.Stack.Push(bytecode.ClassValue(v.allocateClass(name)))
+		case byte(common.OpGetProperty):
+			name, err := v.ReadString()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			if !bytecode.IsInstance(v.Stack.GetAt(-1)) {
+				v.runtimeError(errors.OnlyInstancesHaveProperties)
+				return InterpretRuntimeError
+			}
+			instance := bytecode.AsInstance(v.Stack.GetAt(-1))
+			if value, found := instance.Fields.Get(name); found {
+				v.Stack.Pop()
+				v.Stack.Push(value)
+			} else if !v.bindMethod(instance.Klass, name) {
+				return InterpretRuntimeError
+			}
+		case byte(common.OpSetProperty):
+			name, err := v.ReadString()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			if !bytecode.IsInstance(v.Stack.GetAt(-2)) {
+				v.runtimeError(errors.OnlyInstancesHaveFields)
+				return InterpretRuntimeError
+			}
+			instance := bytecode.AsInstance(v.Stack.GetAt(-2))
+			instance.Fields.Set(name, v.Stack.GetAt(-1))
+			value := v.Stack.Pop()
+			v.Stack.Pop()
+			v.Stack.Push(value)
+		case byte(common.OpMethod):
+			name, err := v.ReadString()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			v.defineMethod(name)
+		case byte(common.OpInvoke):
+			method, err := v.ReadString()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			argCount, err := v.ReadByte()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			if !v.invoke(method, int(argCount)) {
+				return InterpretRuntimeError
+			}
+			frame = &v.Frames[v.FrameCount-1]
+		case byte(common.OpInherit):
+			superclassVal := v.Stack.GetAt(-2)
+			if !bytecode.IsClass(superclassVal) {
+				v.runtimeError(errors.SuperclassMustBeAClass)
+				return InterpretRuntimeError
+			}
+			subclass := bytecode.AsClass(v.Stack.GetAt(-1))
+			superclass := bytecode.AsClass(superclassVal)
+			superclass.Methods.AddAll(&subclass.Methods)
+			v.Stack.Pop()
+		case byte(common.OpGetSuper):
+			name, err := v.ReadString()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			superclass := bytecode.AsClass(v.Stack.Pop())
+			if !v.bindMethod(superclass, name) {
+				return InterpretRuntimeError
+			}
+		case byte(common.OpSuperInvoke):
+			method, err := v.ReadString()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			argCount, err := v.ReadByte()
+			if err != nil {
+				return InterpretRuntimeError
+			}
+			superclass := bytecode.AsClass(v.Stack.Pop())
+			if !v.invokeFromClass(superclass, method, int(argCount)) {
+				return InterpretRuntimeError
+			}
+			frame = &v.Frames[v.FrameCount-1]
 		case byte(common.OpReturn):
-			result := v.Stack.Pop()
+			resultValue := v.Stack.Pop()
 			if v.DebugMode {
-				fmt.Println(debug.PrintValue(result))
+				fmt.Println(debug.PrintValue(resultValue))
 			}
 			slots := frame.Slots
 			v.closeUpvalues(slots)
@@ -194,7 +280,7 @@ func (v *VM) Run() InterpretResult {
 				return InterpretOk
 			}
 			v.Stack.TruncateTo(slots)
-			v.Stack.Push(result)
+			v.Stack.Push(resultValue)
 			frame = &v.Frames[v.FrameCount-1]
 		case byte(common.OpCall):
 			argCount, err := v.ReadByte()
@@ -223,6 +309,22 @@ func (v *VM) ReadShort() int {
 func (v *VM) callValue(callee common.Value, argCount int) bool {
 	if callee.IsObj() {
 		switch callee.As.Obj.Type() {
+		case common.ObjBoundMethodType:
+			bound := bytecode.AsBoundMethod(callee)
+			v.Stack.SetAt(v.Stack.Top()-(argCount+1), bound.Receiver)
+			return v.callClosure(bound.Method, argCount)
+		case common.ObjClassType:
+			klass := bytecode.AsClass(callee)
+			instance := v.allocateInstance(klass)
+			v.Stack.SetAt(v.Stack.Top()-(argCount+1), bytecode.InstanceValue(instance))
+			if initializer, found := klass.Methods.Get(v.InitString); found {
+				return v.callClosure(bytecode.AsClosure(initializer), argCount)
+			}
+			if argCount != 0 {
+				v.runtimeError(errors.ExpectedArgumentsButGot, 0, argCount)
+				return false
+			}
+			return true
 		case common.ObjClosureType:
 			return v.callClosure(bytecode.AsClosure(callee), argCount)
 		case common.ObjNativeFnType:

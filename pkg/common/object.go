@@ -8,6 +8,9 @@ const (
 	ObjNativeFnType
 	ObjClosureType
 	ObjUpvalueType
+	ObjClassType
+	ObjInstanceType
+	ObjBoundMethodType
 )
 
 // Object is the GC header embedded in every heap-allocated Obj.
@@ -33,6 +36,12 @@ func (t ObjType) String() string {
 		return "closure"
 	case ObjUpvalueType:
 		return "upvalue"
+	case ObjClassType:
+		return "class"
+	case ObjInstanceType:
+		return "instance"
+	case ObjBoundMethodType:
+		return "bound method"
 	default:
 		return ""
 	}

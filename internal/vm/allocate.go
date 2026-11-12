@@ -62,6 +62,24 @@ func (v *VM) allocateNative(fn bytecode.NativeFn) *bytecode.ObjNative {
 	return native
 }
 
+func (v *VM) allocateClass(name *common.ObjString) *bytecode.Class {
+	klass := bytecode.NewClass(name)
+	v.allocateObject(klass, sizeOfClass())
+	return klass
+}
+
+func (v *VM) allocateInstance(klass *bytecode.Class) *bytecode.Instance {
+	instance := bytecode.NewInstance(klass)
+	v.allocateObject(instance, sizeOfInstance())
+	return instance
+}
+
+func (v *VM) allocateBoundMethod(receiver common.Value, method *bytecode.Closure) *bytecode.BoundMethod {
+	bound := bytecode.NewBoundMethod(receiver, method)
+	v.allocateObject(bound, sizeOfBoundMethod())
+	return bound
+}
+
 func sizeOfString(s *common.ObjString) int {
 	return 32 + len(s.Content)
 }
@@ -80,6 +98,18 @@ func sizeOfUpvalue() int {
 
 func sizeOfNative() int {
 	return 24
+}
+
+func sizeOfClass() int {
+	return 64
+}
+
+func sizeOfInstance() int {
+	return 64
+}
+
+func sizeOfBoundMethod() int {
+	return 48
 }
 
 func (v *VM) objectCount() int {

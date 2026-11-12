@@ -4,10 +4,11 @@ import "golox/pkg/common"
 
 type Function struct {
 	common.Object
-	Arity        int
-	UpvalueCount int
-	Chunk        *Chunk
-	Name         *common.ObjString
+	Arity         int
+	UpvalueCount  int
+	Chunk         *Chunk
+	Name          *common.ObjString
+	IsInitializer bool
 }
 
 func (f *Function) Type() common.ObjType {
