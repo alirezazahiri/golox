@@ -3,6 +3,7 @@ package bytecode
 import "golox/pkg/common"
 
 type Function struct {
+	common.Object
 	Arity        int
 	UpvalueCount int
 	Chunk        *Chunk
@@ -11,6 +12,10 @@ type Function struct {
 
 func (f *Function) Type() common.ObjType {
 	return common.ObjFunctionType
+}
+
+func (f *Function) Header() *common.Object {
+	return &f.Object
 }
 
 func NewFunction() *Function {

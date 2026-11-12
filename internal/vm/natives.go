@@ -8,7 +8,7 @@ import (
 
 func (v *VM) DefineNative(name string, fn bytecode.NativeFn) {
 	nameObj := v.InternString(name)
-	native := bytecode.NewNative(fn)
+	native := v.allocateNative(fn)
 	v.Globals.Set(nameObj, bytecode.NativeFnValue(native))
 }
 

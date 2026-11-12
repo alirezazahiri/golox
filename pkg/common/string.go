@@ -1,6 +1,7 @@
 package common
 
 type ObjString struct {
+	Object
 	Content string
 	Length  int
 	Hash    uint32
@@ -8,6 +9,10 @@ type ObjString struct {
 
 func (s *ObjString) Type() ObjType {
 	return ObjStringType
+}
+
+func (s *ObjString) Header() *Object {
+	return &s.Object
 }
 
 func HashString(key string) uint32 {

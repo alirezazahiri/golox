@@ -15,7 +15,7 @@ func (v *VM) captureUpvalue(localSlot int) *bytecode.Upvalue {
 		return upvalue
 	}
 
-	createdUpvalue := bytecode.NewUpvalue(localSlot, v.Stack.Slot(localSlot))
+	createdUpvalue := v.allocateUpvalue(localSlot, v.Stack.Slot(localSlot))
 	createdUpvalue.Next = upvalue
 
 	if prevUpvalue == nil {

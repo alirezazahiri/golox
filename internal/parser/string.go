@@ -4,6 +4,6 @@ import "golox/pkg/common"
 
 func (p *Parser) string(canAssign bool) {
 	value := p.Previous.Lexeme[1 : p.Previous.Length-1]
-	str := p.interner.InternString(value)
+	str := p.allocator.InternString(value)
 	p.EmitConstant(common.StringObjValue(str))
 }

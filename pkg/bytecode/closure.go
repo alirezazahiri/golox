@@ -3,6 +3,7 @@ package bytecode
 import "golox/pkg/common"
 
 type Closure struct {
+	common.Object
 	Function     *Function
 	Upvalues     []*Upvalue
 	UpvalueCount int
@@ -10,6 +11,10 @@ type Closure struct {
 
 func (c *Closure) Type() common.ObjType {
 	return common.ObjClosureType
+}
+
+func (c *Closure) Header() *common.Object {
+	return &c.Object
 }
 
 func NewClosure(function *Function) *Closure {

@@ -75,6 +75,16 @@ func (from *Table) AddAll(to *Table) {
 	}
 }
 
+// RemoveWhite deletes entries whose keys were not marked by the GC.
+func (t *Table) RemoveWhite() {
+	for i := range t.Entries {
+		e := &t.Entries[i]
+		if e.Key != nil && !e.Key.Marked {
+			t.Delete(e.Key)
+		}
+	}
+}
+
 func (t *Table) findEntry(key *common.ObjString) *Entry {
 	return findEntryIn(t.Entries, t.Capacity, key)
 }

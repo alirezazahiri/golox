@@ -1,6 +1,7 @@
 package vm
 
 import (
+	"golox/internal/parser"
 	"golox/pkg/bytecode"
 	"golox/pkg/common"
 	"golox/pkg/ds"
@@ -23,44 +24,55 @@ type VM struct {
 	Globals      *table.Table
 	OpenUpvalues *bytecode.Upvalue
 
+	objects        common.Obj
+	bytesAllocated int
+	nextGC         int
+	grayStack      []common.Obj
+	compilerRoot   **parser.Compiler
+
 	DebugMode bool
 }
 
 func New() *VM {
 	vm := &VM{
-		Stack:      ds.NewStack[common.Value](),
-		DebugMode:  false,
-		Strings:    table.New(),
-		Globals:    table.New(),
-		FrameCount: 0,
+		Stack:          ds.NewStack[common.Value](),
+		DebugMode:      false,
+		Strings:        table.New(),
+		Globals:        table.New(),
+		FrameCount:     0,
+		nextGC:         initialGCThreshold,
+		bytesAllocated: 0,
 	}
 	vm.defineNatives()
 	return vm
-}
-
-func (v *VM) InternString(chars string) *common.ObjString {
-	hash := common.HashString(chars)
-
-	if existing := v.Strings.FindString(chars, hash); existing != nil {
-		return existing
-	}
-
-	str := &common.ObjString{
-		Content: chars,
-		Length:  len(chars),
-		Hash:    hash,
-	}
-
-	v.Strings.Set(str, common.NilValue())
-	return str
 }
 
 func (v *VM) Free() {
 	v.FrameCount = 0
 	v.Stack.Reset()
 	v.OpenUpvalues = nil
+	v.compilerRoot = nil
+	v.freeObjects()
+	v.Strings = table.New()
+	v.Globals = table.New()
+	v.nextGC = initialGCThreshold
 }
 
 func (v *VM) ActivateDebugMode() {
 	v.DebugMode = true
+}
+
+// SetNextGC sets the GC threshold (tests only).
+func (v *VM) SetNextGC(n int) {
+	v.nextGC = n
+}
+
+// BytesAllocated returns the tracked heap size (tests only).
+func (v *VM) BytesAllocated() int {
+	return v.bytesAllocated
+}
+
+// ObjectCount returns the number of tracked heap objects (tests only).
+func (v *VM) ObjectCount() int {
+	return v.objectCount()
 }

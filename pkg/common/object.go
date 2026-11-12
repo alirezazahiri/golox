@@ -10,8 +10,15 @@ const (
 	ObjUpvalueType
 )
 
+// Object is the GC header embedded in every heap-allocated Obj.
+type Object struct {
+	Next   Obj
+	Marked bool
+}
+
 type Obj interface {
 	Type() ObjType
+	Header() *Object
 }
 
 func (t ObjType) String() string {

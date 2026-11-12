@@ -16,7 +16,7 @@ func (p *Parser) parseVariable(errorMessage string) uint8 {
 }
 
 func (p *Parser) identifierConstant(token *scanner.Token) uint8 {
-	str := p.interner.InternString(token.Lexeme)
+	str := p.allocator.InternString(token.Lexeme)
 	if index, ok := p.Compiler.constantIndex[str]; ok {
 		return index
 	}

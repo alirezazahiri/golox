@@ -45,12 +45,12 @@ func (p *Parser) beginFunctionCompiler(ty FunctionType) {
 		Enclosing:     enclosing,
 		LocalCount:    0,
 		ScopeDepth:    0,
-		Function:      bytecode.NewFunction(),
+		Function:      p.allocator.AllocateFunction(),
 		Type:          ty,
 		constantIndex: make(map[*common.ObjString]uint8),
 	}
 	if ty != TypeScript {
-		compiler.Function.Name = p.interner.InternString(p.Previous.Lexeme)
+		compiler.Function.Name = p.allocator.InternString(p.Previous.Lexeme)
 	}
 	compiler.Locals[compiler.LocalCount] = Local{Depth: 0}
 	compiler.LocalCount++
@@ -66,11 +66,11 @@ func (p *Parser) EndCompiler() *bytecode.Function {
 	return function
 }
 
-func NewCompiler(ty FunctionType) *Compiler {
+func NewCompilerWithFunction(ty FunctionType, function *bytecode.Function) *Compiler {
 	compiler := &Compiler{
 		LocalCount:    0,
 		ScopeDepth:    0,
-		Function:      bytecode.NewFunction(),
+		Function:      function,
 		Type:          ty,
 		constantIndex: make(map[*common.ObjString]uint8),
 	}

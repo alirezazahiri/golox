@@ -21,6 +21,9 @@ func compile(source string, v *vm.VM) *bytecode.Function {
 	s := scanner.New(source)
 	p := parser.New(s, v)
 
+	v.SetCompilerRoot(&p.Compiler)
+	defer v.SetCompilerRoot(nil)
+
 	p.Advance()
 
 	for !p.Match(scanner.TOKEN_EOF) {

@@ -22,7 +22,7 @@ func (v *VM) InterpretFunction(function *bytecode.Function) InterpretResult {
 	v.Stack.Reset()
 	v.OpenUpvalues = nil
 
-	closure := bytecode.NewClosure(function)
+	closure := v.allocateClosure(function)
 	v.Stack.Push(bytecode.ClosureValue(closure))
 
 	v.callClosure(closure, 0)
@@ -161,7 +161,9 @@ func (v *VM) Run() InterpretResult {
 				return InterpretRuntimeError
 			}
 			function := bytecode.AsFunction(functionValue)
-			closure := bytecode.NewClosure(function)
+			closure := v.allocateClosure(function)
+			// Push before capturing upvalues so the closure is a GC root.
+			v.Stack.Push(bytecode.ClosureValue(closure))
 			for i := 0; i < closure.UpvalueCount; i++ {
 				isLocal, err := v.ReadByte()
 				if err != nil {
@@ -177,7 +179,6 @@ func (v *VM) Run() InterpretResult {
 					closure.Upvalues[i] = frame.Closure.Upvalues[index]
 				}
 			}
-			v.Stack.Push(bytecode.ClosureValue(closure))
 		case byte(common.OpReturn):
 			result := v.Stack.Pop()
 			if v.DebugMode {
